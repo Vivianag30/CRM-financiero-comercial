@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Financiero - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            color: #27ae60;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .demo-users {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .demo-users h4 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .demo-users div {
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">💼 CRM Financiero</div>
+        <div class="subtitle">Sistema Comercial - Datos Reales</div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                Iniciar Sesión
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Validando con Google Sheets...</span>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </form>
+
+        <div class="status-indicator">
+            🔗 <strong>Conectado a Google Sheets</strong><br>
+            Estado: <span id="connection-status">Verificando...</span>
+        </div>
+
+        <div class="demo-users">
+            <h4>👥 Usuarios de Prueba</h4>
+            <div><strong>Asesores:</strong></div>
+            <div>• jose-luis / password123 (Senior)</div>
+            <div>• ana-rodriguez / password123 (Asesor)</div>
+            <div>• carlos-mendez / password123 (Junior)</div>
+            <div><strong>Gerente:</strong></div>
+            <div>• maria-gonzalez / admin123 (Gerencial)</div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN API
+        const API_URL = 'PEGAR_AQUI_LA_NUEVA_URL_DE_TU_WEB_APP';
+        
+        console.log('🚀 CRM Financiero Comercial - Login');
+        console.log('🔗 API URL:', API_URL);
+
+        // Función para mostrar mensaje
+        function mostrarMensaje(mensaje, tipo) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            if (tipo === 'error') {
+                errorDiv.textContent = mensaje;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            } else {
+                successDiv.textContent = mensaje;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        // Función para limpiar mensajes
+        function limpiarMensajes() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Función para mostrar loading
+        function mostrarLoading(mostrar) {
+            const loading = document.getElementById('loading');
+            const btn = document.getElementById('loginBtn');
+            
+            if (mostrar) {
+                loading.style.display = 'block';
+                btn.disabled = true;
+                btn.textContent = 'Validando...';
+            } else {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        // Función para guardar sesión
+        function guardarSesion(usuario, datosUsuario) {
+            const sesion = {
+                usuario: usuario,
+                datos: datosUsuario,
+                timestamp: new Date().getTime()
+            };
+            
+            try {
+                sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
+                console.log('✅ Sesión guardada en sessionStorage');
+            } catch (e) {
+                console.log('SessionStorage no disponible, usando variable global');
+                window.crmSesion = sesion;
+                console.log('✅ Sesión guardada en variable global');
+            }
+        }
+
+        // Función para validar login con API real
+        async function validarLoginAPI(username, password) {
+            try {
+                console.log(`🔐 Autenticando: ${username}`);
+                
+                const url = `${API_URL}?action=login&usuario=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const resultado = await response.json();
+                console.log('📋 Respuesta API:', resultado);
+                
+                return resultado;
+                
+            } catch (error) {
+                console.error('❌ Error API:', error);
+                return {
+                    success: false,
+                    message: 'Error de conexión con el servidor: ' + error.message
+                };
+            }
+        }
+
+        // Función para verificar conexión API
+        async function verificarConexionAPI() {
+            try {
+                console.log('🔍 Verificando conexión API...');
+                const url = `${API_URL}?action=getUsuarios&empresaId=EMP001`;
+                
+                console.log('📡 Probando URL:', url);
+                const response = await fetch(url);
+                
+                console.log('📋 Response status:', response.status);
+                console.log('📋 Response ok:', response.ok);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📊 Data recibida:', data);
+                    
+                    document.getElementById('connection-status').textContent = 
+                        data.success ? '✅ Conectado correctamente' : '⚠️ Error en respuesta';
+                    return data.success;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('❌ Error verificando conexión:', error);
+                document.getElementById('connection-status').textContent = `❌ Sin conexión: ${error.message}`;
+                return false;
+            }
+        }
+
+        // Event listener para el formulario
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            limpiarMensajes();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                mostrarMensaje('Por favor complete todos los campos', 'error');
+                return;
+            }
+            
+            mostrarLoading(true);
+            
+            try {
+                const resultado = await validarLoginAPI(username, password);
+                
+                if (resultado.success) {
+                    guardarSesion(username, resultado.data);
+                    mostrarMensaje('¡Login exitoso! Redirigiendo...', 'success');
+                    
+                    // Redirección automática real basada en tipo de usuario
+                    setTimeout(() => {
+                        if (resultado.data.tipo === 'GERENTE') {
+                            console.log('🎯 Redirigiendo a dashboard gerencial...');
+                            window.location.href = 'dashboard_gerencial_final.html';
+                        } else {
+                            console.log('🎯 Redirigiendo a dashboard asesor...');
+                            window.location.href = 'dashboard_asesor_final.html';
+                        }
+                    }, 1500);
+                } else {
+                    mostrarMensaje(resultado.message || 'Error de autenticación', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Error en login:', error);
+                mostrarMensaje('Error de conexión. Intente nuevamente.', 'error');
+            } finally {
+                mostrarLoading(false);
+            }
+        });
+
+        // Autocompletado para pruebas rápidas
+        document.getElementById('username').addEventListener('click', function() {
+            if (this.value === '') {
+                this.value = 'jose-luis';
+                document.getElementById('password').value = 'password123';
+            }
+        });
+
+        // Verificar conexión al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📡 Verificando conexión con API...');
+            verificarConexionAPI();
+        });
+    </script>
+</body>
+</html>

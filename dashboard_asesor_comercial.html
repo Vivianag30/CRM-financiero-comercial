@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Financiero - Dashboard Asesor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info strong {
+            font-size: 16px;
+        }
+
+        .user-info small {
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .status-bar {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .metric-card .metric-icon {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .metric-card .metric-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .metric-card .metric-change {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filters {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active:hover {
+            color: white;
+        }
+
+        .leads-list {
+            padding: 0;
+            min-height: 300px;
+        }
+
+        .lead-item {
+            padding: 20px 30px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .lead-item:hover {
+            background: #f8f9fa;
+        }
+
+        .lead-item:last-child {
+            border-bottom: none;
+        }
+
+        .lead-info {
+            flex: 1;
+        }
+
+        .lead-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .lead-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .lead-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .lead-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-nuevos { background: #e3f2fd; color: #1976d2; }
+        .status-interesado { background: #fff3e0; color: #f57c00; }
+        .status-gestionando { background: #f3e5f5; color: #7b1fa2; }
+        .status-caliente { background: #ffebee; color: #d32f2f; }
+        .status-reagendo { background: #e8f5e8; color: #388e3c; }
+        .status-cerrados { background: #e8f5e8; color: #2e7d32; }
+        .status-pendiente { background: #f5f5f5; color: #666; }
+        .status-incontactable { background: #ffebee; color: #c62828; }
+        .status-volver_a_llamar { background: #e1f5fe; color: #0277bd; }
+        .status-no_contesta { background: #fce4ec; color: #ad1457; }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .main-container {
+                padding: 20px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lead-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .lead-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>💼 CRM Financiero - Datos Reales</h1>
+            <p id="welcome-message">¡Bienvenido, Asesor!</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <strong id="user-name">Cargando...</strong>
+                <br>
+                <small id="user-role">Conectando...</small>
+            </div>
+            <button class="logout-btn" onclick="cerrarSesion()">
+                🚪 Cerrar Sesión
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Barra de Estado -->
+        <div class="status-bar">
+            <span>🔗 Conectado a Google Sheets</span>
+            <span id="last-sync">Sincronizando...</span>
+        </div>
+
+        <!-- Métricas -->
+        <div class="metrics-grid">
+            <div class="metric-card" onclick="mostrarActivos()">
+                <div class="metric-icon">📊</div>
+                <div class="metric-value" id="leads-activos">--</div>
+                <div class="metric-label">Leads Activos</div>
+                <div class="metric-change">Datos en tiempo real</div>
+            </div>
+            
+            <div class="metric-card" onclick="mostrarCerrados()">
+                <div class="metric-icon">✅</div>
+                <div class="metric-value" id="leads-cerrados">--</div>
+                <div class="metric-label">Cerrados</div>
+                <div class="metric-change">Actualizando...</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-value" id="pipeline-total">$--</div>
+                <div class="metric-label">Pipeline Total</div>
+                <div class="metric-change">Calculando...</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">🎯</div>
+                <div class="metric-value" id="tasa-conversion">--%</div>
+                <div class="metric-label">Tasa Conversión</div>
+                <div class="metric-change">En vivo</div>
+            </div>
+        </div>
+
+        <!-- Lista de Leads -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 Mis Leads - Datos Reales</h2>
+                <div class="section-actions">
+                    <button class="btn btn-primary" onclick="alert('Modal Nuevo Lead próximamente con API...')">
+                        ➕ Nuevo Lead
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filtrarLeads('TODOS')">TODOS</button>
+                <button class="filter-btn" onclick="filtrarLeads('NUEVOS')">NUEVOS</button>
+                <button class="filter-btn" onclick="filtrarLeads('INTERESADO')">INTERESADO</button>
+                <button class="filter-btn" onclick="filtrarLeads('GESTIONANDO')">GESTIONANDO</button>
+                <button class="filter-btn" onclick="filtrarLeads('INCONTACTABLE')">INCONTACTABLE</button>
+                <button class="filter-btn" onclick="filtrarLeads('VOLVER_A_LLAMAR')">VOLVER A LLAMAR</button>
+                <button class="filter-btn" onclick="filtrarLeads('NO_CONTESTA')">NO CONTESTA</button>
+                <button class="filter-btn" onclick="filtrarLeads('REAGENDO')">REAGENDÓ</button>
+            </div>
+
+            <div class="leads-list" id="leads-container">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <h3>Cargando leads desde Google Sheets...</h3>
+                    <p>Conectando con la API...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN API
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwD1b3Cnr9djFAWLOUiPv6o5eG4YrEK57-G1xK8y_7qS-VYgrEcXLOPB_1bJuoLXcZe/exec';
+        
+        console.log('🚀 Dashboard Asesor Comercial - Conectado a Google Sheets');
+        console.log('🔗 API URL:', API_URL);
+
+        // Variables globales
+        let usuarioActual = null;
+        let leadsData = [];
+        let filtroActual = 'TODOS';
+
+        // Función para obtener sesión
+        function obtenerSesion() {
+            try {
+                const sesion = sessionStorage.getItem('crm_sesion');
+                if (sesion) {
+                    const sesionData = JSON.parse(sesion);
+                    const ahora = new Date().getTime();
+                    const tiempoSesion = sesionData.timestamp || 0;
+                    if (ahora - tiempoSesion < 24 * 60 * 60 * 1000) {
+                        return sesionData;
+                    }
+                }
+            } catch (e) {
+                console.log('SessionStorage no disponible, usando variable global');
+                if (window.crmSesion) {
+                    return window.crmSesion;
+                }
+            }
+            return null;
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                try {
+                    sessionStorage.removeItem('crm_sesion');
+                } catch (e) {
+                    window.crmSesion = null;
+                }
+                console.log('Sesión cerrada, redirigiendo al login...');
+                window.location.href = 'login_final.html';
+            }
+        }
+
+        // Función para llamar API
+        async function llamarAPI(action, params = {}) {
+            try {
+                const queryParams = new URLSearchParams({
+                    action: action,
+                    ...params
+                });
+
+                const url = `${API_URL}?${queryParams.toString()}`;
+                console.log(`📡 API Call: ${action}`, params);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const resultado = await response.json();
+                console.log(`📋 API Response: ${action}`, resultado);
+                
+                return resultado;
+                
+            } catch (error) {
+                console.error(`❌ Error API ${action}:`, error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // Función para cargar leads desde API
+        async function cargarLeadsDesdeAPI() {
+            try {
+                if (!usuarioActual) return;
+
+                console.log(`📋 Cargando leads para: ${usuarioActual}`);
+                
+                const resultado = await llamarAPI('getLeads', { 
+                    asesorId: usuarioActual,
+                    empresaId: 'EMP001'
+                });
+
+                if (resultado.success) {
+                    leadsData = resultado.data || [];
+                    console.log(`✅ ${leadsData.length} leads cargados desde Google Sheets`);
+                    return true;
+                } else {
+                    console.error('❌ Error cargando leads:', resultado.error);
+                    mostrarError('Error cargando leads: ' + (resultado.error || 'Error desconocido'));
+                    return false;
+                }
+
+            } catch (error) {
+                console.error('❌ Error en cargarLeadsDesdeAPI:', error);
+                mostrarError('Error de conexión al cargar leads');
+                return false;
+            }
+        }
+
+        // Función para cargar métricas desde API
+        async function cargarMetricasDesdeAPI() {
+            try {
+                if (!usuarioActual) return;
+
+                console.log(`📊 Cargando métricas para: ${usuarioActual}`);
+                
+                const resultado = await llamarAPI('getMetricas', { 
+                    asesorId: usuarioActual 
+                });
+
+                if (resultado.success) {
+                    const metricas = resultado.data;
+                    
+                    document.getElementById('leads-activos').textContent = metricas.activos || 0;
+                    document.getElementById('leads-cerrados').textContent = metricas.cerrados || 0;
+                    document.getElementById('pipeline-total').textContent = `${((metricas.pipeline || 0)/1000).toFixed(1)}K`;
+                    document.getElementById('tasa-conversion').textContent = `${metricas.conversion || 0}%`;
+                    
+                    console.log('✅ Métricas actualizadas desde Google Sheets:', metricas);
+                    
+                } else {
+                    console.error('❌ Error cargando métricas:', resultado.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Error en cargarMetricasDesdeAPI:', error);
+            }
+        }
+
+        // Función para mostrar leads
+        function mostrarLeads() {
+            console.log(`📋 Mostrando leads, filtro: ${filtroActual}`);
+            
+            const container = document.getElementById('leads-container');
+
+            if (!leadsData || leadsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <h3>No hay leads asignados</h3>
+                        <p>Los leads aparecerán aquí cuando se asignen a tu usuario</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let leadsFiltrados = leadsData;
+            if (filtroActual !== 'TODOS') {
+                leadsFiltrados = leadsData.filter(lead => lead.Estado_Lead === filtroActual);
+            }
+
+            if (leadsFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <h3>No hay leads en estado "${filtroActual}"</h3>
+                        <p>Prueba con otros filtros o crea nuevos leads</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = leadsFiltrados.map(lead => `
+                <div class="lead-item">
+                    <div class="lead-info">
+                        <div class="lead-name">${lead.Nombre_Cliente || 'Sin nombre'}</div>
+                        <div class="lead-details">
+                            📱 ${lead.Telefono || 'Sin teléfono'} | 💰 ${(lead.Monto_Solicitado || 0).toLocaleString()} | 💳 ${lead.Plan_Financiero || 'PENDIENTE'}
+                        </div>
+                        <div class="lead-meta">
+                            <span>📅 Creado: ${formatearFecha(lead.Fecha_Creacion)}</span>
+                            <span>🎯 Estado: ${(lead.Estado_Lead || '').replace('_', ' ')}</span>
+                            <span>🆔 ID: ${lead.ID_Lead}</span>
+                        </div>
+                    </div>
+                    <div class="lead-actions">
+                        <span class="status-badge status-${(lead.Estado_Lead || '').toLowerCase()}">${(lead.Estado_Lead || '').replace('_', ' ')}</span>
+                        <button class="action-btn" onclick="verDetalle(${lead.ID_Lead})">👁️ Ver</button>
+                        <button class="action-btn" onclick="alert('Actualizar estado próximamente...')">🔄 Estado</button>
+                        ${lead.Estado_Lead === 'CERRADOS' ? 
+                            `<button class="action-btn" onclick="alert('Contrato de ${lead.Nombre_Cliente}')">📄 Contrato</button>` : 
+                            ''
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            console.log(`✅ Mostrando ${leadsFiltrados.length} leads de ${leadsData.length} totales`);
+        }
+
+        // Función para formatear fecha
+        function formatearFecha(fecha) {
+            if (!fecha) return 'Sin fecha';
+            try {
+                return new Date(fecha).toLocaleDateString('es-EC');
+            } catch (e) {
+                return 'Fecha inválida';
+            }
+        }
+
+        // Función para filtrar leads
+        function filtrarLeads(filtro) {
+            console.log(`🔍 Filtrando por: ${filtro}`);
+            
+            filtroActual = filtro;
+
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === filtro || 
+                   (filtro === 'VOLVER_A_LLAMAR' && btn.textContent.trim() === 'VOLVER A LLAMAR')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            mostrarLeads();
+        }
+
+        // Función para mostrar activos
+        function mostrarActivos() {
+            filtrarLeads('TODOS');
+        }
+
+        // Función para mostrar cerrados
+        function mostrarCerrados() {
+            filtroActual = 'CERRADOS';
+            
+            // Limpiar filtros activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            mostrarLeads();
+        }
+
+        // Función para ver detalle
+        function verDetalle(leadId) {
+            const lead = leadsData.find(l => l.ID_Lead == leadId);
+            
+            if (lead) {
+                alert(`👤 DETALLE DEL LEAD (Datos Reales)\n\n` +
+                     `🆔 ID: ${lead.ID_Lead}\n` +
+                     `👤 Nombre: ${lead.Nombre_Cliente}\n` +
+                     `📱 Teléfono: ${lead.Telefono}\n` +
+                     `📧 Email: ${lead.Email || 'Sin email'}\n` +
+                     `🆔 Cédula: ${lead.Cedula || 'Sin cédula'}\n` +
+                     `💳 Plan: ${lead.Plan_Financiero}\n` +
+                     `💰 Monto: ${(lead.Monto_Solicitado || 0).toLocaleString()}\n` +
+                     `📊 Estado: ${lead.Estado_Lead}\n` +
+                     `📅 Creado: ${formatearFecha(lead.Fecha_Creacion)}\n` +
+                     `📝 Notas: ${lead.Notas_Asesor || 'Sin notas'}\n` +
+                     `🎯 Probabilidad: ${lead.Probabilidad_Cierre || '0%'}`);
+            }
+        }
+
+        // Función para mostrar error
+        function mostrarError(mensaje) {
+            const container = document.getElementById('leads-container');
+            container.innerHTML = `
+                <div class="error-state">
+                    <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                    <h3>Error de Conexión</h3>
+                    <p>${mensaje}</p>
+                    <button class="btn btn-primary" onclick="inicializarDashboard()" style="margin-top: 15px;">
+                        🔄 Reintentar
+                    </button>
+                </div>
+            `;
+        }
+
+        // Función para actualizar estado de sincronización
+        function actualizarEstadoSync() {
+            const ahora = new Date();
+            document.getElementById('last-sync').textContent = 
+                `Última sincronización: ${ahora.toLocaleTimeString('es-EC')}`;
+        }
+
+        // Función para inicializar dashboard
+        async function inicializarDashboard() {
+            console.log('🎯 Iniciando Dashboard Asesor Comercial...');
+            
+            // Verificar sesión
+            const sesion = obtenerSesion();
+            
+            if (!sesion || !sesion.usuario || !sesion.datos) {
+                console.log('❌ Sin sesión válida');
+                console.log('🔄 Creando sesión demo para testing directo...');
+                
+                // Si no hay sesión, crear una demo para testing
+                const usuarioDemo = 'jose-luis';
+                const datosDemo = {
+                    id: usuarioDemo,
+                    nombre: 'José Luis Martínez',
+                    cargo: 'Senior',
+                    email: 'jlmartinez@empresa.com',
+                    tipo: 'ASESOR'
+                };
+                
+                // Usar datos demo
+                usuarioActual = usuarioDemo;
+                document.getElementById('welcome-message').textContent = `¡Bienvenido, ${datosDemo.nombre.split(' ')[0]}! (Demo)`;
+                document.getElementById('user-name').textContent = datosDemo.nombre + ' (Demo)';
+                document.getElementById('user-role').textContent = `${datosDemo.cargo} | ${datosDemo.email}`;
+                
+                console.log('✅ Sesión demo creada para testing');
+            } else {
+                // Verificar que sea asesor
+                if (sesion.datos.tipo === 'GERENTE') {
+                    console.log('🎯 Usuario gerente detectado, redirigiendo...');
+                    window.location.href = 'dashboard_gerencial_final.html';
+                    return;
+                }
+
+                usuarioActual = sesion.usuario;
+                const datosUsuario = sesion.datos;
+                
+                console.log(`👤 Asesor autenticado: ${usuarioActual}`);
+                
+                // Actualizar header
+                document.getElementById('welcome-message').textContent = 
+                    `¡Bienvenido, ${datosUsuario.nombre.split(' ')[0]}!`;
+                document.getElementById('user-name').textContent = datosUsuario.nombre;
+                document.getElementById('user-role').textContent = 
+                    `${datosUsuario.cargo} | ${datosUsuario.email}`;
+            }
+
+            // Cargar datos desde API
+            console.log('📡 Cargando datos desde Google Sheets...');
+            
+            const leadsOk = await cargarLeadsDesdeAPI();
+            if (leadsOk) {
+                await cargarMetricasDesdeAPI();
+                mostrarLeads();
+                actualizarEstadoSync();
+                console.log('✅ Dashboard inicializado correctamente con datos reales');
+            } else {
+                console.log('❌ Error cargando datos del dashboard');
+                // Mostrar datos demo si la API falla
+                mostrarDatosDemo();
+            }
+        }
+
+        // Función para mostrar datos demo cuando la API falla
+        function mostrarDatosDemo() {
+            console.log('🔄 Mostrando datos demo...');
+            
+            // Métricas demo
+            document.getElementById('leads-activos').textContent = '2';
+            document.getElementById('leads-cerrados').textContent = '1';
+            document.getElementById('pipeline-total').textContent = '$6.3K';
+            document.getElementById('tasa-conversion').textContent = '33%';
+            
+            // Leads demo
+            document.getElementById('leads-container').innerHTML = `
+                <div style="text-align: center; padding: 40px; background: #fff3cd; border-radius: 8px; color: #856404;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                    <h3>Modo Demo - API No Disponible</h3>
+                    <p>No se pudo conectar con Google Sheets</p>
+                    <p>Mostrando datos de ejemplo para demostración</p>
+                    <div style="margin-top: 20px;">
+                        <strong>Para activar datos reales:</strong><br>
+                        1. Verificar que el Google Apps Script esté desplegado<br>
+                        2. Verificar la URL de la API<br>
+                        3. Hacer login desde login_final.html
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para refrescar datos
+        async function refrescarDatos() {
+            console.log('🔄 Refrescando datos...');
+            
+            // Mostrar loading en métricas
+            document.getElementById('leads-activos').textContent = '--';
+            document.getElementById('leads-cerrados').textContent = '--';
+            document.getElementById('pipeline-total').textContent = '$--';
+            document.getElementById('tasa-conversion').textContent = '--%';
+            
+            // Mostrar loading en leads
+            document.getElementById('leads-container').innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <h3>Refrescando datos...</h3>
+                    <p>Obteniendo información actualizada de Google Sheets</p>
+                </div>
+            `;
+            
+            // Cargar datos nuevamente
+            const leadsOk = await cargarLeadsDesdeAPI();
+            if (leadsOk) {
+                await cargarMetricasDesdeAPI();
+                mostrarLeads();
+                actualizarEstadoSync();
+            }
+        }
+
+        // Auto-refresh cada 30 segundos
+        setInterval(refrescarDatos, 30000);
+
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', inicializarDashboard);
+        } else {
+            inicializarDashboard();
+        }
+
+        console.log('🎯 Script Dashboard Asesor Comercial cargado completamente');
+    </script>
+</body>
+</html>
+                

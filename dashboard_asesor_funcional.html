@@ -517,21 +517,45 @@
                             <div class="form-group">
                                 <label>📊 Estado</label>
                                 <select id="nuevo-estado" required>
-                                    <option value="NUEVO">🆕 Nuevo</option>
-                                    <option value="INTERESADO">👀 Interesado</option>
-                                    <option value="GESTIONANDO">🔄 Gestionando</option>
-                                    <option value="CERRADOS">✅ Cerrado</option>
+                                    <option value="NUEVO">🆕 NUEVO</option>
+                                    <option value="INTERESADO">👀 INTERESADO</option>
+                                    <option value="GESTIONANDO">🔄 GESTIONANDO</option>
+                                    <option value="CERRADOS">✅ CERRADOS</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>💳 Plan</label>
+                            <label>💳 Tipo de Crédito</label>
                             <select id="nuevo-plan" required>
-                                <option value="PERSONAL">💼 Personal</option>
-                                <option value="COMERCIAL">🏢 Comercial</option>
-                                <option value="HIPOTECARIO">🏠 Hipotecario</option>
-                                <option value="VEHICULAR">🚗 Vehicular</option>
+                                <option value="PERSONAL">💼 PERSONAL</option>
+                                <option value="COMERCIAL">🏢 COMERCIAL</option>
+                                <option value="HIPOTECARIO">🏠 HIPOTECARIO</option>
+                                <option value="VEHICULAR">🚗 VEHICULAR</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>📅 Fecha de Cita</label>
+                                <input type="date" id="nuevo-fecha-cita">
+                            </div>
+                            <div class="form-group">
+                                <label>⏰ Hora de Cita</label>
+                                <input type="time" id="nuevo-hora-cita">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>📍 Lugar de Cita</label>
+                            <select id="nuevo-lugar-cita">
+                                <option value="">Seleccionar lugar...</option>
+                                <option value="OFICINA_PRINCIPAL">🏢 Oficina Principal</option>
+                                <option value="OFICINA_NORTE">🏢 Oficina Norte</option>
+                                <option value="OFICINA_SUR">🏢 Oficina Sur</option>
+                                <option value="DOMICILIO_CLIENTE">🏠 Domicilio Cliente</option>
+                                <option value="VIDEOLLAMADA">💻 Videollamada</option>
+                                <option value="OTRO">📍 Otro</option>
                             </select>
                         </div>
                         
@@ -829,21 +853,24 @@
             // MAPEO CORRECTO según tu estructura de Google Sheets
             const campos = {
                 action: 'addLead',
-                // Mapeo exacto a tu estructura:
-                ID_Lead: leadId,
-                Nombre_Cliente: datosLead.nombre,
-                Email: datosLead.email || '',
-                Telefono: datosLead.telefono,
-                Empresa_Cliente: 'Cliente Independiente', // Valor por defecto
-                Tipo_Credito: datosLead.plan, // Plan del formulario -> Tipo_Credito en Sheets
-                Monto_Solicitado: datosLead.monto,
-                Estado: datosLead.estado,
-                Asesor_ID: usuarioActual.usuario,
-                Fecha_Creacion: fechaActual,
-                Ultima_Gestion: fechaHoraActual,
-                Observaciones: datosLead.observaciones || 'Nuevo lead ingresado desde CRM',
-                Probabilidad: calcularProbabilidadInicial(datosLead.estado),
-                Empresa_ID: 'EMP001' // ID de tu empresa
+                // Usar nombres EXACTOS de las columnas:
+                'ID_Lead': leadId,
+                'Nombre_Cliente': datosLead.nombre,
+                'Email': datosLead.email || '',
+                'Telefono': datosLead.telefono,
+                'Empresa_Cliente': 'Cliente Independiente',
+                'Tipo_Credito': datosLead.plan,
+                'Monto_Solicitado': datosLead.monto,
+                'Estado': datosLead.estado,
+                'Asesor_ID': usuarioActual.usuario,
+                'Fecha de la cita': datosLead.fechaCita || '',
+                'Hora de la cita': datosLead.horaCita || '',
+                'Lugar de la cita': datosLead.lugarCita || '',
+                'Fecha_Creacion': fechaActual,
+                'Ultima_Gestion': fechaHoraActual,
+                'Observaciones': datosLead.observaciones || 'Nuevo lead ingresado desde CRM',
+                'Probabilidad': calcularProbabilidadInicial(datosLead.estado),
+                'Empresa_ID': 'EMP001'
             };
 
             console.log('📋 Campos mapeados para Google Sheets:', campos);
@@ -997,6 +1024,9 @@
                         monto: document.getElementById('nuevo-monto').value,
                         estado: document.getElementById('nuevo-estado').value,
                         plan: document.getElementById('nuevo-plan').value,
+                        fechaCita: document.getElementById('nuevo-fecha-cita').value,
+                        horaCita: document.getElementById('nuevo-hora-cita').value,
+                        lugarCita: document.getElementById('nuevo-lugar-cita').value,
                         observaciones: document.getElementById('nuevo-observaciones').value.trim()
                     };
                     

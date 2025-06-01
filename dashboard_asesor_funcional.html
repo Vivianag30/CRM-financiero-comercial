@@ -1009,14 +1009,12 @@ function cerrarEditModal() {
     }
 }
 
-// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN COMPLETA CORREGIDA
+// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN DEFINITIVA
 async function guardarEditLead(leadId) {
     console.log('💾 Guardando cambios para lead:', leadId);
     
     try {
-        console.log('📝 Datos a enviar...');
-        
-        // Crear FormData - VERSIÓN CORREGIDA
+        // Crear FormData - MÉTODO CORREGIDO
         const formData = new FormData();
         formData.append('action', 'updateLead');
         formData.append('ID_Lead', leadId);
@@ -1029,12 +1027,21 @@ async function guardarEditLead(leadId) {
         formData.append('Observaciones', document.getElementById('edit_observaciones').value);
         formData.append('Asesor_ID', usuarioActual.usuario);
         
+        // Debug FormData
+        console.log('📡 FormData creado:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
         console.log('📡 Enviando petición POST a Google Sheets...');
         
-        // Enviar a Google Apps Script
+        // Fetch con headers específicos para Google Apps Script
         const response = await fetch(API_URL, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
         });
         
         console.log('📡 Respuesta recibida:', response.status);
@@ -1064,6 +1071,7 @@ async function guardarEditLead(leadId) {
                 }
             } catch (e) {
                 console.log('❌ Error parsing JSON:', e);
+                console.log('📄 Respuesta completa:', text);
                 alert('❌ Error en respuesta del servidor');
             }
         } else {

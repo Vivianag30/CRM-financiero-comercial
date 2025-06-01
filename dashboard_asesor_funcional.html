@@ -1694,16 +1694,20 @@ function procesarEdicionLead() {
     };
     
     const params = new URLSearchParams({
-        action: 'updateLead',
-        callback: callbackName,
-        'ID_Lead': datosLead.id,
-        'Nombre_Cliente': datosLead.nombre,
-        'Email': datosLead.email || '',
-        'Telefono': datosLead.telefono,
-        'Tipo_Credito': datosLead.plan,
-        'Monto_Solicitado': datosLead.monto,
-        'Estado': datosLead.estado,
-        'Asesor_ID': usuarioActual.usuario
+       action: 'updateLead',
+    callback: callbackName,
+    'ID_Lead': datosLead.id,
+    'Nombre_Cliente': datosLead.nombre,
+    'Email': datosLead.email || '',
+    'Telefono': datosLead.telefono,
+    'Tipo_Credito': datosLead.plan,
+    'Monto_Solicitado': datosLead.monto,
+    'Estado': datosLead.estado,
+    'Asesor_ID': usuarioActual.usuario,
+    'Fecha de la cita': datosLead.fechaCita || '',
+    'Hora de la cita': datosLead.horaCita || '',
+    'Lugar de la cita': datosLead.lugarCita || '',
+    'Observaciones': datosLead.observaciones || ''
     });
     
     const script = document.createElement('script');

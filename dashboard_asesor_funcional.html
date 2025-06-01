@@ -741,7 +741,7 @@
 
     <script>
         // URL de tu Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyBv-Sr4gU1bKAKg4xelwCuJS9_1scgspRz0KzDpQVJor7hRT3_xQ1Ja9NK9GSJoWNE/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxFh8YIRRYU5x_vdEueWa872CgGoUFTrOhtBg0No3omJShYYqaOiZXbGEBuQqj7iMjf/exec';
         
         // Variables globales
         let usuarioActual = null;
@@ -817,7 +817,7 @@
         }
 
         
- // FUNCIÓN MEJORADA PARA CARGAR LEADS REALES
+ // FUNCIÓN SIN POPUPS - MÉTODO DIRECTO
 function cargarLeadsDesdeAPI() {
     console.log('🔄 Cargando leads REALES desde Google Sheets...');
     console.log('👤 Usuario actual:', usuarioActual.usuario);
@@ -834,80 +834,59 @@ function cargarLeadsDesdeAPI() {
         </div>
     `;
     
-    // Construir URL con parámetros
-    const params = new URLSearchParams({
-        action: 'getLeads',
-        asesorId: usuarioActual.usuario,
-        empresaId: 'EMP001'
-    });
+    // Crear iframe oculto en lugar de popup
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.style.width = '1px';
+    iframe.style.height = '1px';
+    iframe.name = 'leadLoader';
     
-    const leadsUrl = `${API_URL}?${params.toString()}`;
-    console.log('🔗 URL completa:', leadsUrl);
+    const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&empresaId=EMP001`;
+    console.log('🔗 URL completa:', fullUrl);
     
-    // Abrir popup (misma técnica del login exitoso)
-    const popup = window.open(leadsUrl, 'leadsWindow', 'width=800,height=600,scrollbars=yes');
-    
-    if (!popup) {
-        console.log('❌ Error: Popup bloqueado por el navegador');
-        alert('⚠️ Popup bloqueado. Por favor permite popups para este sitio.');
-        mostrarLeads();
-        return;
-    }
-    
-    console.log('📡 Popup abierto, esperando datos...');
-    
-    // Verificar datos cada segundo
-    const checkData = setInterval(() => {
-        if (window.leadsDataReceived) {
-            console.log('✅ ¡DATOS REALES RECIBIDOS!');
-            console.log('📊 Cantidad de leads:', window.leadsDataReceived.length);
+    // Listener para recibir datos via postMessage
+    const messageListener = function(event) {
+        if (event.data && event.data.type === 'LEADS_DATA') {
+            console.log('✅ ¡DATOS REALES RECIBIDOS via postMessage!');
+            console.log('📊 Cantidad de leads:', event.data.data.length);
             
-            // Asignar datos reales
-            leadsData = window.leadsDataReceived;
+            leadsData = event.data.data;
             
             // Log de cada lead
             leadsData.forEach((lead, index) => {
                 console.log(`📋 Lead ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto?.toLocaleString() || 0}`);
             });
             
-            // Mostrar en interfaz
             mostrarLeads();
             actualizarMetricas();
             
             // Limpiar
-            clearInterval(checkData);
-            window.leadsDataReceived = null;
-            
-            if (popup && !popup.closed) {
-                popup.close();
-            }
-            
-            return;
-        }
-        
-        // Verificar si popup fue cerrado manualmente
-        if (popup.closed) {
-            console.log('⚠️ Popup cerrado por el usuario');
-            clearInterval(checkData);
-            if (!window.leadsDataReceived) {
-                leadsData = [];
-                mostrarLeads();
-                actualizarMetricas();
+            window.removeEventListener('message', messageListener);
+            if (iframe.parentNode) {
+                document.body.removeChild(iframe);
             }
         }
-    }, 1000);
+    };
     
-    // Timeout de seguridad (15 segundos)
+    // Agregar listener
+    window.addEventListener('message', messageListener);
+    
+    // Cargar iframe
+    iframe.src = fullUrl;
+    document.body.appendChild(iframe);
+    
+    console.log('📡 Iframe cargado, esperando datos...');
+    
+    // Timeout de seguridad
     setTimeout(() => {
-        clearInterval(checkData);
+        window.removeEventListener('message', messageListener);
         
-        if (popup && !popup.closed) {
-            popup.close();
+        if (iframe.parentNode) {
+            document.body.removeChild(iframe);
         }
         
-        if (!window.leadsDataReceived) {
-            console.log('⏰ Timeout - no se recibieron datos en 15 segundos');
-            leadsData = [];
+        if (leadsData.length === 0) {
+            console.log('⚠️ No se recibieron datos - mostrando estado sin leads');
             mostrarLeads();
             actualizarMetricas();
         }

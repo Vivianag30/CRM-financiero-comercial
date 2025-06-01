@@ -817,27 +817,21 @@
         }
 
         
-// FUNCIÓN REAL PARA CARGAR LEADS - MÉTODO QUE SÍ FUNCIONA
+// FUNCIÓN REAL SIN POPUPS - MÉTODO QUE SÍ FUNCIONA
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Cargando leads REALES desde Google Sheets...');
+            
+            // Crear iframe oculto (no se bloquea como los popups)
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.style.width = '1px';
+            iframe.style.height = '1px';
+            iframe.name = 'leadLoader';
             
             const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&empresaId=EMP001`;
             console.log('🔗 URL completa:', fullUrl);
             
-            // Crear popup que va a recibir los datos
-            const popup = window.open(fullUrl, 'loadLeads', 'width=600,height=400,scrollbars=yes');
-            
-            if (!popup) {
-                console.log('❌ No se pudo abrir popup - verifica que no esté bloqueado');
-                leadsData = [];
-                mostrarLeads();
-                actualizarMetricas();
-                return;
-            }
-            
-            console.log('📡 Popup abierto, esperando datos...');
-            
-            // Escuchar mensaje del popup con los datos
+            // Escuchar mensajes del iframe
             const messageListener = function(event) {
                 console.log('📡 Mensaje recibido:', event.data);
                 
@@ -861,31 +855,44 @@
                     mostrarLeads();
                     actualizarMetricas();
                     
-                    // Limpiar listener
+                    // Limpiar
                     window.removeEventListener('message', messageListener);
+                    if (iframe.parentNode) {
+                        document.body.removeChild(iframe);
+                    }
                 }
             };
             
-            // Agregar listener para recibir datos
+            // Agregar listener
             window.addEventListener('message', messageListener);
+            
+            // Cargar iframe
+            iframe.src = fullUrl;
+            document.body.appendChild(iframe);
+            
+            console.log('📡 Iframe cargado, esperando datos...');
             
             // Timeout de seguridad
             setTimeout(() => {
-                if (popup && !popup.closed) {
-                    console.log('⏰ Cerrando popup por timeout');
-                    popup.close();
-                }
-                
-                // Si no se recibieron datos, remover listener
                 window.removeEventListener('message', messageListener);
                 
+                if (iframe.parentNode) {
+                    document.body.removeChild(iframe);
+                }
+                
                 if (leadsData.length === 0) {
-                    console.log('⚠️ No se recibieron datos en el tiempo esperado');
+                    console.log('⚠️ No se recibieron datos - verificando respuesta directa...');
+                    
+                    // Como backup, usar técnica que sabemos que funciona
+                    const backupUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}`;
+                    window.open(backupUrl, '_blank');
+                    
                     mostrarLeads();
                     actualizarMetricas();
                 }
-            }, 15000);
+            }, 10000);
         }
+
         
   // Función para recargar leads manualmente
         function recargarLeads() {

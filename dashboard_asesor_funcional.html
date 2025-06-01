@@ -814,7 +814,7 @@
         }
 
         
-        // Función para cargar leads desde Google Sheets REAL
+// Función para cargar leads desde Google Sheets REAL
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Conectando a tu Google Sheets REAL...');
             console.log('🌐 API URL:', API_URL);
@@ -828,13 +828,12 @@
             window[callbackName] = function(data) {
                 console.log('📡 Respuesta recibida de Google Sheets:', data);
                 
-                if (data && data.leads) {
+                if (data && data.leads && data.leads.length > 0) {
                     // Filtrar leads para el asesor actual
                     leadsData = data.leads.filter(lead => 
                         lead.asesor === usuarioActual.usuario || 
                         lead.Asesor_ID === usuarioActual.usuario
                     );
-                    
                     console.log('✅ Leads cargados desde Google Sheets:', leadsData.length);
                 } else {
                     console.log('⚠️ No se pudieron cargar datos desde Google Sheets, usando datos actualizados');
@@ -853,7 +852,9 @@
                 actualizarMetricas();
                 
                 // Limpiar callback
-                document.head.removeChild(script);
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
                 delete window[callbackName];
             };
             
@@ -881,6 +882,7 @@
                 }
             }, 5000);
         }
+
 
         // Función para mostrar leads
         function mostrarLeads() {

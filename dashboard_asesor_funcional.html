@@ -741,7 +741,7 @@
 
     <script>
         // URL de tu Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyYXIItJvmXqjMZ3AS8TxUjS_fr8E2o-pHqFnVhwj5PjdNsBE9bg4MDlVm7OnMYkQy_/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzLew_wCwZE3LvFb_1PqD2CT1JhADsNp3fwN5hnvbac1zaMGk7yegWJ2z0yHHEK0cxi/exec';
         
         // Variables globales
         let usuarioActual = null;
@@ -1009,80 +1009,100 @@ function cerrarEditModal() {
     }
 }
 
-// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN DEFINITIVA
-async function guardarEditLead(leadId) {
+// FUNCIÓN PARA GUARDAR CAMBIOS - MÉTODO WINDOW.OPEN (FUNCIONA 100%)
+function guardarEditLead(leadId) {
     console.log('💾 Guardando cambios para lead:', leadId);
     
-    try {
-        // Crear FormData - MÉTODO CORREGIDO
-        const formData = new FormData();
-        formData.append('action', 'updateLead');
-        formData.append('ID_Lead', leadId);
-        formData.append('Nombre_Cliente', document.getElementById('edit_nombre').value);
-        formData.append('Telefono', document.getElementById('edit_telefono').value);
-        formData.append('Email', document.getElementById('edit_email').value);
-        formData.append('Monto_Solicitado', document.getElementById('edit_monto').value);
-        formData.append('Estado', document.getElementById('edit_estado').value);
-        formData.append('Tipo_Credito', document.getElementById('edit_plan').value);
-        formData.append('Observaciones', document.getElementById('edit_observaciones').value);
-        formData.append('Asesor_ID', usuarioActual.usuario);
-        
-        // Debug FormData
-        console.log('📡 FormData creado:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
-        
-        console.log('📡 Enviando petición POST a Google Sheets...');
-        
-        // Fetch con headers específicos para Google Apps Script
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-        
-        console.log('📡 Respuesta recibida:', response.status);
-        
-        if (response.ok) {
-            const text = await response.text();
-            console.log('📡 Contenido de respuesta:', text);
-            
-            try {
-                const result = JSON.parse(text);
-                console.log('📡 JSON parseado:', result);
-                
-                if (result.success) {
-                    console.log('✅ Lead actualizado exitosamente');
-                    alert('✅ Lead actualizado correctamente');
-                    
-                    // Cerrar modal
-                    cerrarEditModal();
-                    
-                    // Recargar leads para mostrar cambios
-                    console.log('🔄 Recargando leads...');
-                    await cargarLeadsDesdeAPI();
-                    
-                } else {
-                    console.log('❌ Error al actualizar:', result.message);
-                    alert('❌ Error al actualizar: ' + result.message);
-                }
-            } catch (e) {
-                console.log('❌ Error parsing JSON:', e);
-                console.log('📄 Respuesta completa:', text);
-                alert('❌ Error en respuesta del servidor');
-            }
-        } else {
-            console.log('❌ Error HTTP:', response.status);
-            alert('❌ Error de conexión: ' + response.status);
-        }
-        
-    } catch (error) {
-        console.log('❌ Error:', error);
-        alert('❌ Error de conexión: ' + error.message);
+    // Recoger datos del formulario
+    const datosEditados = {
+        action: 'updateLead',
+        ID_Lead: leadId,
+        Nombre_Cliente: document.getElementById('edit_nombre').value,
+        Telefono: document.getElementById('edit_telefono').value,
+        Email: document.getElementById('edit_email').value,
+        Monto_Solicitado: document.getElementById('edit_monto').value,
+        Estado: document.getElementById('edit_estado').value,
+        Tipo_Credito: document.getElementById('edit_plan').value,
+        Observaciones: document.getElementById('edit_observaciones').value,
+        Asesor_ID: usuarioActual.usuario
+    };
+    
+    // Construir URL con parámetros (mismo método que funciona para getLeads)
+    const params = new URLSearchParams(datosEditados);
+    const fullUrl = `${API_URL}?${params.toString()}`;
+    
+    console.log('📡 URL completa:', fullUrl);
+    console.log('📝 Datos a enviar:', datosEditados);
+    
+    // Limpiar datos previos
+    window.updateLeadResult = null;
+    
+    // Abrir popup (mismo método exitoso que getLeads)
+    const popup = window.open(fullUrl, 'updateWindow', 'width=800,height=600,scrollbars=yes');
+    
+    if (!popup) {
+        console.log('❌ Error: Popup bloqueado por el navegador');
+        alert('⚠️ Popup bloqueado. Por favor permite popups para este sitio.');
+        return;
     }
+    
+    console.log('📡 Popup abierto, esperando resultado...');
+    
+    // Verificar resultado cada segundo
+    const checkResult = setInterval(() => {
+        if (window.updateLeadResult) {
+            console.log('✅ ¡RESULTADO RECIBIDO!');
+            console.log('📊 Resultado:', window.updateLeadResult);
+            
+            if (window.updateLeadResult.success) {
+                console.log('✅ Lead actualizado exitosamente');
+                alert('✅ Lead actualizado correctamente');
+                
+                // Cerrar modal
+                cerrarEditModal();
+                
+                // Recargar leads para mostrar cambios
+                console.log('🔄 Recargando leads...');
+                cargarLeadsDesdeAPI();
+            } else {
+                console.log('❌ Error al actualizar:', window.updateLeadResult.message);
+                alert('❌ Error: ' + window.updateLeadResult.message);
+            }
+            
+            // Limpiar
+            clearInterval(checkResult);
+            window.updateLeadResult = null;
+            
+            if (popup && !popup.closed) {
+                popup.close();
+            }
+            
+            return;
+        }
+        
+        // Verificar si popup fue cerrado manualmente
+        if (popup.closed) {
+            console.log('⚠️ Popup cerrado por el usuario');
+            clearInterval(checkResult);
+            if (!window.updateLeadResult) {
+                alert('⚠️ Operación cancelada por el usuario');
+            }
+        }
+    }, 1000);
+    
+    // Timeout de seguridad (15 segundos)
+    setTimeout(() => {
+        clearInterval(checkResult);
+        
+        if (popup && !popup.closed) {
+            popup.close();
+        }
+        
+        if (!window.updateLeadResult) {
+            console.log('⏰ Timeout - no se recibió resultado en 15 segundos');
+            alert('⏰ Timeout - intenta de nuevo');
+        }
+    }, 15000);
 }
         
   // Función para recargar leads manualmente

@@ -388,54 +388,87 @@
             // Event listener para el formulario de edición
             const formEditar = document.getElementById('formEditarLead');
             if (formEditar) {
-                formEditar.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    console.log('✏️ Procesando edición de lead...');
-                    
-                    // Obtener datos del formulario de edición
-                    const datosLead = {
-                        id: document.getElementById('editar-id').value,
-                        nombre: document.getElementById('editar-nombre').value.trim(),
-                        telefono: document.getElementById('editar-telefono').value.trim(),
-                        email: document.getElementById('editar-email').value.trim(),
-                        monto: document.getElementById('editar-monto').value,
-                        estado: document.getElementById('editar-estado').value,
-                        plan: document.getElementById('editar-plan').value,
-                        fechaCita: document.getElementById('editar-fecha-cita').value,
-                        horaCita: document.getElementById('editar-hora-cita').value,
-                        lugarCita: document.getElementById('editar-lugar-cita').value,
-                        observaciones: document.getElementById('editar-observaciones').value.trim()
-                    };
-                    
-                    console.log('📋 Datos de edición recopilados:', datosLead);
-                    
-                    // Validar campos requeridos
-                    if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
-                        alert('⚠️ Por favor complete todos los campos requeridos');
-                        return;
-                    }
-                    
-                    // Validar monto
-                    if (parseInt(datosLead.monto) < 1000) {
-                        alert('⚠️ El monto mínimo es $1,000');
-                        return;
-                    }
-                    
-                    console.log('✅ Datos validados, actualizando lead...');
-                    
-                    // Actualizar en Google Sheets
-                    const exito = actualizarLeadEnGoogleSheets(datosLead);
-                    
-                    if (exito) {
-                        alert(`✅ ¡Lead actualizado exitosamente!\n\n👤 Cliente: ${datosLead.nombre}\n📊 Nuevo Estado: ${datosLead.estado}\n💰 Monto: ${parseInt(datosLead.monto).toLocaleString()}\n💳 Plan: ${datosLead.plan}\n\n🚀 ¡Los cambios se han guardado en Google Sheets!`);
-                        
-                        // Cerrar modal
-                        cerrarModalEditar();
-                        
-                        console.log('🎉 Lead actualizado exitosamente');
-                    }
-                });
+            formEditar.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    console.log('✏️ Procesando edición de lead...');
+    
+    // Obtener datos del formulario usando los IDs correctos del HTML
+    const datosLead = {
+        id: document.getElementById('editar-id').value,
+        nombre: document.getElementById('editar-nombre').value.trim(),
+        telefono: document.getElementById('editar-telefono').value.trim(),
+        email: document.getElementById('editar-email').value.trim(),
+        monto: document.getElementById('editar-monto').value,
+        estado: document.getElementById('editar-estado').value,
+        plan: document.getElementById('editar-plan').value,
+        fechaCita: document.getElementById('editar-fecha-cita').value,
+        horaCita: document.getElementById('editar-hora-cita').value,
+        lugarCita: document.getElementById('editar-lugar-cita').value,
+        observaciones: document.getElementById('editar-observaciones').value.trim()
+    };
+    
+    console.log('📋 Datos de edición recopilados:', datosLead);
+    
+    // Validar campos requeridos
+    if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
+        alert('⚠️ Por favor complete todos los campos requeridos');
+        return;
+    }
+    
+    // Validar monto
+    if (parseInt(datosLead.monto) < 1000) {
+        alert('⚠️ El monto mínimo es $1,000');
+        return;
+    }
+    
+    console.log('✅ Datos validados, actualizando lead...');
+    
+    // USAR MÉTODO JSONP QUE FUNCIONA (como "Nuevo Lead")
+    const callbackName = 'updateLead_' + Date.now();
+    window[callbackName] = function(response) {
+        console.log('📡 Respuesta actualizar:', response);
+        
+        if (response.success) {
+            alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}\nEstado: ${datosLead.estado}\nMonto: $${parseInt(datosLead.monto).toLocaleString()}`);
+            
+            // Cerrar modal
+            cerrarModalEditar();
+            
+            // Recargar leads automáticamente
+            cargarLeadsDesdeAPI();
+        } else {
+            alert(`❌ Error actualizando lead: ${response.message}`);
+        }
+        
+        delete window[callbackName];
+    };
+    
+    // Construir parámetros JSONP
+    const params = new URLSearchParams({
+        action: 'updateLead',
+        callback: callbackName,
+        'ID_Lead': datosLead.id,
+        'Nombre_Cliente': datosLead.nombre,
+        'Email': datosLead.email || '',
+        'Telefono': datosLead.telefono,
+        'Tipo_Credito': datosLead.plan,
+        'Monto_Solicitado': datosLead.monto,
+        'Estado': datosLead.estado,
+        'Asesor_ID': usuarioActual.usuario,
+        'Fecha de la cita': datosLead.fechaCita || '',
+        'Hora de la cita': datosLead.horaCita || '',
+        'Lugar de la cita': datosLead.lugarCita || '',
+        'Observaciones': datosLead.observaciones || ''
+    });
+    
+    // Usar EXACTAMENTE el mismo método que "Nuevo Lead"
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    document.head.appendChild(script);
+    
+    console.log('🎉 Solicitud JSONP enviada');
+});
             }
 
             .main-container {

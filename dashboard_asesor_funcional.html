@@ -385,6 +385,57 @@
                 flex-direction: column;
                 gap: 15px;
                 text-align: center;
+            // Event listener para el formulario de edición
+            const formEditar = document.getElementById('formEditarLead');
+            if (formEditar) {
+                formEditar.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    console.log('✏️ Procesando edición de lead...');
+                    
+                    // Obtener datos del formulario de edición
+                    const datosLead = {
+                        id: document.getElementById('editar-id').value,
+                        nombre: document.getElementById('editar-nombre').value.trim(),
+                        telefono: document.getElementById('editar-telefono').value.trim(),
+                        email: document.getElementById('editar-email').value.trim(),
+                        monto: document.getElementById('editar-monto').value,
+                        estado: document.getElementById('editar-estado').value,
+                        plan: document.getElementById('editar-plan').value,
+                        fechaCita: document.getElementById('editar-fecha-cita').value,
+                        horaCita: document.getElementById('editar-hora-cita').value,
+                        lugarCita: document.getElementById('editar-lugar-cita').value,
+                        observaciones: document.getElementById('editar-observaciones').value.trim()
+                    };
+                    
+                    console.log('📋 Datos de edición recopilados:', datosLead);
+                    
+                    // Validar campos requeridos
+                    if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
+                        alert('⚠️ Por favor complete todos los campos requeridos');
+                        return;
+                    }
+                    
+                    // Validar monto
+                    if (parseInt(datosLead.monto) < 1000) {
+                        alert('⚠️ El monto mínimo es $1,000');
+                        return;
+                    }
+                    
+                    console.log('✅ Datos validados, actualizando lead...');
+                    
+                    // Actualizar en Google Sheets
+                    const exito = actualizarLeadEnGoogleSheets(datosLead);
+                    
+                    if (exito) {
+                        alert(`✅ ¡Lead actualizado exitosamente!\n\n👤 Cliente: ${datosLead.nombre}\n📊 Nuevo Estado: ${datosLead.estado}\n💰 Monto: ${parseInt(datosLead.monto).toLocaleString()}\n💳 Plan: ${datosLead.plan}\n\n🚀 ¡Los cambios se han guardado en Google Sheets!`);
+                        
+                        // Cerrar modal
+                        cerrarModalEditar();
+                        
+                        console.log('🎉 Lead actualizado exitosamente');
+                    }
+                });
             }
 
             .main-container {
@@ -413,6 +464,104 @@
         <div class="header-left">
             <h1>💼 CRM Financiero</h1>
             <p id="welcome-message">¡Bienvenido, Asesor!</p>
+        <!-- Modal Editar Lead -->
+        <div id="modalEditarLead" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">✏️ Editar Lead</h3>
+                    <span class="close" onclick="cerrarModalEditar()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarLead">
+                        <input type="hidden" id="editar-id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>👤 Nombre Completo</label>
+                                <input type="text" id="editar-nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label>📱 Teléfono</label>
+                                <input type="tel" id="editar-telefono" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📧 Email</label>
+                            <input type="email" id="editar-email">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>💰 Monto Solicitado</label>
+                                <input type="number" id="editar-monto" min="1000" step="1000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>📊 Estado</label>
+                                <select id="editar-estado" required>
+                                    <option value="NUEVOS">🆕 NUEVOS</option>
+                                    <option value="INTERESADO">👀 INTERESADO</option>
+                                    <option value="GESTIONANDO">🔄 GESTIONANDO</option>
+                                    <option value="CALIENTE">🔥 CALIENTE</option>
+                                    <option value="REAGENDO">📅 REAGENDO</option>
+                                    <option value="PERDIDO">❌ PERDIDO</option>
+                                    <option value="INCONTACTABLE">📵 INCONTACTABLE</option>
+                                    <option value="NO CONTESTA">🔇 NO CONTESTA</option>
+                                    <option value="VOLVER A LLAMAR">📞 VOLVER A LLAMAR</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>💳 Tipo de Crédito</label>
+                            <select id="editar-plan" required>
+                                <option value="PERSONAL">💼 PERSONAL</option>
+                                <option value="COMERCIAL">🏢 COMERCIAL</option>
+                                <option value="HIPOTECARIO">🏠 HIPOTECARIO</option>
+                                <option value="VEHICULAR">🚗 VEHICULAR</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>📅 Fecha de Cita</label>
+                                <input type="date" id="editar-fecha-cita">
+                            </div>
+                            <div class="form-group">
+                                <label>⏰ Hora de Cita</label>
+                                <input type="time" id="editar-hora-cita">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>📍 Lugar de Cita</label>
+                            <select id="editar-lugar-cita">
+                                <option value="">Seleccionar lugar...</option>
+                                <option value="OFICINA_PRINCIPAL">🏢 Oficina Principal</option>
+                                <option value="OFICINA_NORTE">🏢 Oficina Norte</option>
+                                <option value="OFICINA_SUR">🏢 Oficina Sur</option>
+                                <option value="DOMICILIO_CLIENTE">🏠 Domicilio Cliente</option>
+                                <option value="VIDEOLLAMADA">💻 Videollamada</option>
+                                <option value="OTRO">📍 Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📝 Observaciones</label>
+                            <textarea id="editar-observaciones" rows="3" placeholder="Notas sobre el cliente..."></textarea>
+                        </div>
+                        
+                        <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end;">
+                            <button type="button" class="btn btn-secondary" onclick="cerrarModalEditar()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Actualizar Lead
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="header-right">
             <div class="user-info">
@@ -474,7 +623,12 @@
                 <button class="filter-btn" onclick="filtrarLeads('NUEVOS')">NUEVOS</button>
                 <button class="filter-btn" onclick="filtrarLeads('INTERESADO')">INTERESADO</button>
                 <button class="filter-btn" onclick="filtrarLeads('GESTIONANDO')">GESTIONANDO</button>
-                <button class="filter-btn" onclick="filtrarLeads('CERRADOS')">CERRADOS</button>
+                <button class="filter-btn" onclick="filtrarLeads('CALIENTE')">CALIENTE</button>
+                <button class="filter-btn" onclick="filtrarLeads('REAGENDO')">REAGENDO</button>
+                <button class="filter-btn" onclick="filtrarLeads('PERDIDO')">PERDIDO</button>
+                <button class="filter-btn" onclick="filtrarLeads('INCONTACTABLE')">INCONTACTABLE</button>
+                <button class="filter-btn" onclick="filtrarLeads('NO CONTESTA')">NO CONTESTA</button>
+                <button class="filter-btn" onclick="filtrarLeads('VOLVER A LLAMAR')">VOLVER A LLAMAR</button>
             </div>
 
             <div class="leads-list" id="leads-container">
@@ -517,10 +671,15 @@
                             <div class="form-group">
                                 <label>📊 Estado</label>
                                 <select id="nuevo-estado" required>
-                                    <option value="NUEVO">🆕 NUEVO</option>
+                                    <option value="NUEVOS">🆕 NUEVOS</option>
                                     <option value="INTERESADO">👀 INTERESADO</option>
                                     <option value="GESTIONANDO">🔄 GESTIONANDO</option>
-                                    <option value="CERRADOS">✅ CERRADOS</option>
+                                    <option value="CALIENTE">🔥 CALIENTE</option>
+                                    <option value="REAGENDO">📅 REAGENDO</option>
+                                    <option value="PERDIDO">❌ PERDIDO</option>
+                                    <option value="INCONTACTABLE">📵 INCONTACTABLE</option>
+                                    <option value="NO CONTESTA">🔇 NO CONTESTA</option>
+                                    <option value="VOLVER A LLAMAR">📞 VOLVER A LLAMAR</option>
                                 </select>
                             </div>
                         </div>
@@ -820,7 +979,125 @@
 
         // Función para editar lead
         function editarLead(leadId) {
-            alert('Función de edición próximamente...');
+            const lead = leadsData.find(l => l.id === leadId);
+            if (!lead) {
+                alert('Lead no encontrado');
+                return;
+            }
+            
+            console.log('✏️ Editando lead:', lead);
+            
+            // Llenar formulario con datos actuales
+            document.getElementById('editar-id').value = lead.id;
+            document.getElementById('editar-nombre').value = lead.nombre || '';
+            document.getElementById('editar-telefono').value = lead.telefono || '';
+            document.getElementById('editar-email').value = lead.email || '';
+            document.getElementById('editar-monto').value = lead.monto || '';
+            document.getElementById('editar-estado').value = lead.estado || '';
+            document.getElementById('editar-plan').value = lead.plan || '';
+            document.getElementById('editar-fecha-cita').value = lead.fechaCita || '';
+            document.getElementById('editar-hora-cita').value = lead.horaCita || '';
+            document.getElementById('editar-lugar-cita').value = lead.lugarCita || '';
+            document.getElementById('editar-observaciones').value = lead.observaciones || '';
+            
+            // Mostrar modal
+            document.getElementById('modalEditarLead').style.display = 'block';
+        }
+
+        // Función para cerrar modal de edición
+        function cerrarModalEditar() {
+            document.getElementById('modalEditarLead').style.display = 'none';
+            
+            // Limpiar formulario
+            const form = document.getElementById('formEditarLead');
+            if (form) {
+                form.reset();
+            }
+        }
+
+        // Función para actualizar lead en Google Sheets
+        function actualizarLeadEnGoogleSheets(datosLead) {
+            console.log('🔄 Actualizando lead en Google Sheets...');
+            console.log('📊 Datos del lead:', datosLead);
+            
+            const fechaHoraActual = new Date().toLocaleString('es-EC');
+            
+            // MAPEO CORRECTO para actualización
+            const campos = {
+                action: 'updateLead',
+                // Usar nombres EXACTOS de las columnas:
+                'ID_Lead': datosLead.id,
+                'Nombre_Cliente': datosLead.nombre,
+                'Email': datosLead.email || '',
+                'Telefono': datosLead.telefono,
+                'Tipo_Credito': datosLead.plan,
+                'Monto_Solicitado': datosLead.monto,
+                'Estado': datosLead.estado,
+                'Asesor_ID': usuarioActual.usuario,
+                'Fecha de la cita': datosLead.fechaCita || '',
+                'Hora de la cita': datosLead.horaCita || '',
+                'Lugar de la cita': datosLead.lugarCita || '',
+                'Ultima_Gestion': fechaHoraActual,
+                'Observaciones': datosLead.observaciones || '',
+                'Probabilidad': calcularProbabilidadInicial(datosLead.estado)
+            };
+
+            console.log('📋 Campos mapeados para actualización:', campos);
+            
+            // USAR LA MISMA TÉCNICA EXITOSA
+            const popup = window.open('', '_blank', 'width=1,height=1');
+            
+            // Crear formulario para enviar datos
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = API_URL;
+            form.target = popup.name;
+            form.style.display = 'none';
+
+            // Agregar todos los campos
+            Object.keys(campos).forEach(key => {
+                const input = document.createElement('input');
+                input.name = key;
+                input.value = campos[key] || '';
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+
+            console.log('✅ Lead actualizado enviado a Google Sheets');
+            
+            // Cerrar popup después de envío
+            setTimeout(() => {
+                if (popup) popup.close();
+                document.body.removeChild(form);
+            }, 2000);
+
+            // Actualizar lead en la lista local
+            const leadIndex = leadsData.findIndex(l => l.id === datosLead.id);
+            if (leadIndex !== -1) {
+                leadsData[leadIndex] = {
+                    ...leadsData[leadIndex],
+                    nombre: datosLead.nombre,
+                    telefono: datosLead.telefono,
+                    email: datosLead.email || '',
+                    monto: parseInt(datosLead.monto),
+                    estado: datosLead.estado,
+                    plan: datosLead.plan,
+                    fechaCita: datosLead.fechaCita || '',
+                    horaCita: datosLead.horaCita || '',
+                    lugarCita: datosLead.lugarCita || '',
+                    observaciones: datosLead.observaciones || ''
+                };
+            }
+            
+            console.log('📊 Lead actualizado en la lista local');
+            
+            // Actualizar interfaz inmediatamente
+            mostrarLeads();
+            actualizarMetricas();
+            
+            return true;
         }
 
         // Función para crear nuevo lead - CONECTA A GOOGLE SHEETS
@@ -933,12 +1210,17 @@
         // Función auxiliar para calcular probabilidad inicial basada en estado
         function calcularProbabilidadInicial(estado) {
             const probabilidades = {
-                'NUEVO': '25',
-                'INTERESADO': '50', 
-                'GESTIONANDO': '75',
-                'CERRADOS': '100'
+                'NUEVOS': '15',
+                'INTERESADO': '35', 
+                'GESTIONANDO': '50',
+                'CALIENTE': '80',
+                'REAGENDO': '25',
+                'PERDIDO': '0',
+                'INCONTACTABLE': '0',
+                'NO CONTESTA': '5',
+                'VOLVER A LLAMAR': '20'
             };
-            return probabilidades[estado] || '25';
+            return probabilidades[estado] || '15';
         }
 
         // Función para cerrar sesión
@@ -1066,9 +1348,14 @@
             
             // Cerrar modal al hacer clic fuera
             window.onclick = function(event) {
-                const modal = document.getElementById('modalNuevoLead');
-                if (event.target === modal) {
+                const modalNuevo = document.getElementById('modalNuevoLead');
+                const modalEditar = document.getElementById('modalEditarLead');
+                
+                if (event.target === modalNuevo) {
                     cerrarModal();
+                }
+                if (event.target === modalEditar) {
+                    cerrarModalEditar();
                 }
             }
         });

@@ -1009,33 +1009,25 @@ function cerrarEditModal() {
     }
 }
 
-// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN COMPLETA
+// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN COMPLETA CORREGIDA
 async function guardarEditLead(leadId) {
     console.log('💾 Guardando cambios para lead:', leadId);
     
     try {
-        // Recoger datos del formulario
-        const datosEditados = {
-            ID_Lead: leadId,
-            Nombre_Cliente: document.getElementById('edit_nombre').value,
-            Telefono: document.getElementById('edit_telefono').value,
-            Email: document.getElementById('edit_email').value,
-            Monto_Solicitado: document.getElementById('edit_monto').value,
-            Estado: document.getElementById('edit_estado').value,
-            Tipo_Credito: document.getElementById('edit_plan').value,
-            Observaciones: document.getElementById('edit_observaciones').value,
-            Asesor_ID: usuarioActual.usuario
-        };
+        console.log('📝 Datos a enviar...');
         
-        console.log('📝 Datos a enviar:', datosEditados);
-        
-        // Crear FormData
+        // Crear FormData - VERSIÓN CORREGIDA
         const formData = new FormData();
         formData.append('action', 'updateLead');
-        
-        Object.keys(datosEditados).forEach(key => {
-            formData.append(key, datosEditados[key]);
-        });
+        formData.append('ID_Lead', leadId);
+        formData.append('Nombre_Cliente', document.getElementById('edit_nombre').value);
+        formData.append('Telefono', document.getElementById('edit_telefono').value);
+        formData.append('Email', document.getElementById('edit_email').value);
+        formData.append('Monto_Solicitado', document.getElementById('edit_monto').value);
+        formData.append('Estado', document.getElementById('edit_estado').value);
+        formData.append('Tipo_Credito', document.getElementById('edit_plan').value);
+        formData.append('Observaciones', document.getElementById('edit_observaciones').value);
+        formData.append('Asesor_ID', usuarioActual.usuario);
         
         console.log('📡 Enviando petición POST a Google Sheets...');
         

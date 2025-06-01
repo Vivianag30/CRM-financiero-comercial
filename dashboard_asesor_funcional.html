@@ -817,37 +817,35 @@
         }
 
         
-// FUNCIÓN REAL SIN POPUPS - MÉTODO QUE SÍ FUNCIONA
+ // FUNCIÓN QUE USA LA MISMA TÉCNICA EXITOSA DEL LOGIN
         function cargarLeadsDesdeAPI() {
-            console.log('🔄 Cargando leads REALES desde Google Sheets...');
+            console.log('🔄 Cargando leads usando técnica del login...');
             
-            // Crear iframe oculto (no se bloquea como los popups)
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.style.width = '1px';
-            iframe.style.height = '1px';
-            iframe.name = 'leadLoader';
+            // Usar la MISMA técnica que el login (que SÍ funciona)
+            const params = new URLSearchParams({
+                action: 'getLeads',
+                asesorId: usuarioActual.usuario,
+                empresaId: 'EMP001'
+            });
             
-            const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&empresaId=EMP001`;
-            console.log('🔗 URL completa:', fullUrl);
+            const leadsUrl = `${API_URL}?${params.toString()}`;
+            console.log('🔗 URL:', leadsUrl);
             
-            // Escuchar mensajes del iframe
-            const messageListener = function(event) {
-                console.log('📡 Mensaje recibido:', event.data);
-                
-                if (event.data && event.data.type === 'LEADS_DATA') {
-                    console.log('✅ Datos de leads recibidos:', event.data.data);
+            // Abrir popup como en el login
+            const popup = window.open(leadsUrl, '_blank', 'width=800,height=600');
+            
+            console.log('📡 Popup abierto (técnica del login)');
+            
+            // Verificar cada segundo si hay datos
+            const checkData = setInterval(() => {
+                if (window.leadsDataReceived) {
+                    console.log('✅ ¡DATOS REALES RECIBIDOS!', window.leadsDataReceived);
                     
-                    // Filtrar leads para el asesor actual
-                    const todosLosLeads = event.data.data || [];
-                    leadsData = todosLosLeads.filter(lead => 
-                        lead.asesor === usuarioActual.usuario || 
-                        lead.Asesor_ID === usuarioActual.usuario
-                    );
+                    leadsData = window.leadsDataReceived;
                     
-                    console.log(`📊 Leads filtrados para ${usuarioActual.usuario}:`, leadsData.length);
+                    console.log(`📊 Leads REALES para ${usuarioActual.usuario}:`, leadsData.length);
                     
-                    // Mostrar información de cada lead real
+                    // Mostrar cada lead real
                     leadsData.forEach((lead, index) => {
                         console.log(`📋 Lead REAL ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto}`);
                     });
@@ -856,43 +854,26 @@
                     actualizarMetricas();
                     
                     // Limpiar
-                    window.removeEventListener('message', messageListener);
-                    if (iframe.parentNode) {
-                        document.body.removeChild(iframe);
-                    }
+                    clearInterval(checkData);
+                    delete window.leadsDataReceived;
+                    
+                    if (popup) popup.close();
                 }
-            };
+            }, 1000);
             
-            // Agregar listener
-            window.addEventListener('message', messageListener);
-            
-            // Cargar iframe
-            iframe.src = fullUrl;
-            document.body.appendChild(iframe);
-            
-            console.log('📡 Iframe cargado, esperando datos...');
-            
-            // Timeout de seguridad
+            // Timeout
             setTimeout(() => {
-                window.removeEventListener('message', messageListener);
+                clearInterval(checkData);
+                if (popup) popup.close();
                 
-                if (iframe.parentNode) {
-                    document.body.removeChild(iframe);
-                }
-                
-                if (leadsData.length === 0) {
-                    console.log('⚠️ No se recibieron datos - verificando respuesta directa...');
-                    
-                    // Como backup, usar técnica que sabemos que funciona
-                    const backupUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}`;
-                    window.open(backupUrl, '_blank');
-                    
+                if (!window.leadsDataReceived) {
+                    console.log('⚠️ Timeout - no se recibieron datos');
+                    leadsData = [];
                     mostrarLeads();
                     actualizarMetricas();
                 }
             }, 10000);
         }
-
         
   // Función para recargar leads manualmente
         function recargarLeads() {

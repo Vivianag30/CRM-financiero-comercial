@@ -741,7 +741,7 @@
 
     <script>
         // URL de tu Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxD7S7FpvnJlUJYH62knh7x6CW4JpKuzFSXpkTNGufeELGaB_hCyuenfvn4Od4dqLTc/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwFGoLmw5ZqZEL81Epw2nDfs4zdm1F0z3yyLsBJIibJmCzJnIjMKtYb-fo__1wm0DmW/exec';
         
         // Variables globales
         let usuarioActual = null;
@@ -1009,7 +1009,7 @@ function cerrarEditModal() {
     }
 }
 
-// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN QUE FUNCIONA
+// FUNCIÓN PARA GUARDAR CAMBIOS - USANDO MÉTODO QUE FUNCIONA (JSONP)
 async function guardarEditLead(leadId) {
     console.log('💾 Guardando cambios para lead:', leadId);
     
@@ -1021,101 +1021,66 @@ async function guardarEditLead(leadId) {
             saveButton.disabled = true;
         }
         
-        // Recoger datos del formulario
+        // Recoger datos del formulario (mismos campos que editarLead)
         const datosEditados = {
-            action: 'updateLead',
-            ID_Lead: leadId,
-            Nombre_Cliente: document.getElementById('edit_nombre').value,
-            Telefono: document.getElementById('edit_telefono').value,
-            Email: document.getElementById('edit_email').value,
-            Monto_Solicitado: document.getElementById('edit_monto').value,
-            Estado: document.getElementById('edit_estado').value,
-            Tipo_Credito: document.getElementById('edit_plan').value,
-            Fecha_Cita: document.getElementById('edit_fecha_cita').value,
-            Hora_Cita: document.getElementById('edit_hora_cita').value,
-            Lugar_Cita: document.getElementById('edit_lugar_cita').value,
-            Observaciones: document.getElementById('edit_observaciones').value,
-            Asesor_ID: usuarioActual.usuario
+            id: leadId,
+            nombre: document.getElementById('edit_nombre').value,
+            telefono: document.getElementById('edit_telefono').value,
+            email: document.getElementById('edit_email').value,
+            monto: document.getElementById('edit_monto').value,
+            estado: document.getElementById('edit_estado').value,
+            plan: document.getElementById('edit_plan').value,
+            fechaCita: document.getElementById('edit_fecha_cita') ? document.getElementById('edit_fecha_cita').value : '',
+            horaCita: document.getElementById('edit_hora_cita') ? document.getElementById('edit_hora_cita').value : '',
+            lugarCita: document.getElementById('edit_lugar_cita') ? document.getElementById('edit_lugar_cita').value : '',
+            observaciones: document.getElementById('edit_observaciones').value
         };
         
-        console.log('📝 Datos a enviar:', datosEditados);
+        console.log('📝 Datos de edición:', datosEditados);
         
-        // Construir URL con parámetros
-        const params = new URLSearchParams(datosEditados);
-        const fullUrl = `${API_URL}?${params.toString()}`;
-        
-        console.log('📡 URL completa:', fullUrl.substring(0, 200) + '...');
-        
-        // Método 1: Fetch directo (intentar primero)
-        try {
-            console.log('🔄 Intentando fetch directo...');
-            const response = await fetch(fullUrl);
+        // Validar campos requeridos
+        if (!datosEditados.nombre || !datosEditados.telefono || !datosEditados.monto) {
+            alert('⚠️ Por favor complete todos los campos requeridos');
             
-            if (response.ok) {
-                const text = await response.text();
-                console.log('📡 Respuesta recibida:', text.substring(0, 200));
-                
-                // Buscar JSON en la respuesta
-                const jsonMatch = text.match(/\{[^{}]*"success"[^{}]*\}/);
-                if (jsonMatch) {
-                    const result = JSON.parse(jsonMatch[0]);
-                    if (result.success) {
-                        console.log('✅ Actualización exitosa por fetch');
-                        await completarActualizacion(leadId, datosEditados);
-                        return;
-                    }
-                }
+            // Restaurar botón
+            if (saveButton) {
+                saveButton.innerHTML = '💾 Guardar Cambios';
+                saveButton.disabled = false;
             }
-        } catch (fetchError) {
-            console.log('❌ Fetch falló:', fetchError.message);
+            return;
         }
         
-        // Método 2: Window.open (backup)
-        console.log('🔄 Usando método window.open...');
-        
-        // Limpiar variable de resultado
-        window.updateLeadResult = null;
-        
-        // Abrir ventana
-        const popup = window.open(fullUrl, 'updateWindow', 'width=600,height=400,scrollbars=yes');
-        
-        if (!popup) {
-            throw new Error('Popup bloqueado');
+        // Validar monto
+        if (parseInt(datosEditados.monto) < 1000) {
+            alert('⚠️ El monto mínimo es $1,000');
+            
+            // Restaurar botón
+            if (saveButton) {
+                saveButton.innerHTML = '💾 Guardar Cambios';
+                saveButton.disabled = false;
+            }
+            return;
         }
         
-        // Esperar resultado
-        let timeoutCount = 0;
-        const checkResult = setInterval(() => {
-            timeoutCount++;
-            
-            if (window.updateLeadResult) {
-                console.log('✅ Resultado recibido:', window.updateLeadResult);
-                clearInterval(checkResult);
-                
-                if (popup && !popup.closed) {
-                    popup.close();
-                }
-                
-                if (window.updateLeadResult.success) {
-                    completarActualizacion(leadId, datosEditados);
-                } else {
-                    throw new Error(window.updateLeadResult.message || 'Error desconocido');
-                }
-                return;
+        console.log('✅ Datos validados, actualizando lead...');
+        
+        // Usar el MISMO método exitoso que guardarLeadEnGoogleSheets
+        const exito = actualizarLeadEnGoogleSheets(datosEditados);
+        
+        if (exito) {
+            console.log('🔄 Solicitud de actualización enviada...');
+            // El callback manejará el éxito/error
+        } else {
+            // Restaurar botón en caso de error inmediato
+            if (saveButton) {
+                saveButton.innerHTML = '💾 Guardar Cambios';
+                saveButton.disabled = false;
             }
-            
-            if (popup.closed || timeoutCount > 10) {
-                clearInterval(checkResult);
-                if (!window.updateLeadResult) {
-                    // Asumir éxito si no hay error explícito
-                    console.log('⚠️ No se recibió confirmación, asumiendo éxito');
-                    completarActualizacion(leadId, datosEditados);
-                }
-            }
-        }, 1000);
+            alert('❌ Error enviando actualización');
+        }
         
     } catch (error) {
-        console.log('❌ Error completo:', error);
+        console.log('❌ Error:', error);
         
         // Restaurar botón
         const saveButton = document.querySelector(`button[onclick="guardarEditLead('${leadId}')"]`);
@@ -1124,70 +1089,84 @@ async function guardarEditLead(leadId) {
             saveButton.disabled = false;
         }
         
-        // Aún así, intentar actualización local
-        console.log('🔄 Intentando actualización local...');
-        
-        const datosEditados = {
-            action: 'updateLead',
-            ID_Lead: leadId,
-            Nombre_Cliente: document.getElementById('edit_nombre').value,
-            Telefono: document.getElementById('edit_telefono').value,
-            Email: document.getElementById('edit_email').value,
-            Monto_Solicitado: document.getElementById('edit_monto').value,
-            Estado: document.getElementById('edit_estado').value,
-            Tipo_Credito: document.getElementById('edit_plan').value,
-            Fecha_Cita: document.getElementById('edit_fecha_cita').value,
-            Hora_Cita: document.getElementById('edit_hora_cita').value,
-            Lugar_Cita: document.getElementById('edit_lugar_cita').value,
-            Observaciones: document.getElementById('edit_observaciones').value,
-            Asesor_ID: usuarioActual.usuario
-        };
-        
-        await completarActualizacion(leadId, datosEditados);
+        alert('❌ Error: ' + error.message);
     }
 }
 
-// FUNCIÓN AUXILIAR PARA COMPLETAR LA ACTUALIZACIÓN
-async function completarActualizacion(leadId, datosEditados) {
-    console.log('✅ Completando actualización...');
+// FUNCIÓN REAL PARA ACTUALIZAR LEADS - USANDO MISMO MÉTODO QUE FUNCIONA
+function actualizarLeadEnGoogleSheets(datosLead) {
+    console.log('🔄 Actualizando lead REAL en Google Sheets...');
     
-    // Actualizar lead localmente para mostrar cambios inmediatos
-    const leadIndex = leadsData.findIndex(l => l.id === leadId);
-    if (leadIndex !== -1) {
-        leadsData[leadIndex] = {
-            ...leadsData[leadIndex],
-            nombre: datosEditados.Nombre_Cliente,
-            telefono: datosEditados.Telefono,
-            email: datosEditados.Email,
-            monto: parseInt(datosEditados.Monto_Solicitado) || 0,
-            estado: datosEditados.Estado,
-            plan: datosEditados.Tipo_Credito,
-            fechaCita: datosEditados.Fecha_Cita,
-            horaCita: datosEditados.Hora_Cita,
-            lugarCita: datosEditados.Lugar_Cita,
-            observaciones: datosEditados.Observaciones
-        };
+    // Crear callback único (mismo patrón que guardarLeadEnGoogleSheets)
+    const callbackName = 'updateLead_' + Date.now();
+    window[callbackName] = function(response) {
+        console.log('📡 Respuesta actualizar:', response);
         
-        console.log('✅ Lead actualizado localmente');
-    }
-    
-    // Mostrar éxito
-    alert('✅ Lead actualizado correctamente');
-    
-    // Cerrar modal
-    cerrarEditModal();
-    
-    // Actualizar interfaz inmediatamente
-    mostrarLeads();
-    actualizarMetricas();
-    
-    // Recargar desde Google Sheets en segundo plano para confirmar
-    setTimeout(() => {
-        console.log('🔄 Recargando desde Google Sheets...');
-        cargarLeadsDesdeAPI();
-    }, 2000);
-}
+        // Restaurar botón
+        const saveButton = document.querySelector(`button[onclick*="guardarEditLead"]`);
+        if (saveButton) {
+            saveButton.innerHTML = '💾 Guardar Cambios';
+            saveButton.disabled = false;
+        }
         
+        if (response.success) {
+            alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}\nEstado: ${datosLead.estado}\nMonto: $${parseInt(datosLead.monto).toLocaleString()}`);
+            
+            // Cerrar modal de edición
+            cerrarEditModal();
+            
+            // Recargar leads automáticamente
+            console.log('🔄 Recargando leads desde Google Sheets...');
+            cargarLeadsDesdeAPI();
+        } else {
+            alert(`❌ Error actualizando lead: ${response.message}`);
+        }
+        
+        // Limpiar callback
+        delete window[callbackName];
+    };
+    
+    // Construir parámetros usando exactamente los mismos nombres que Google Apps Script espera
+    const params = new URLSearchParams({
+        action: 'updateLead',
+        callback: callbackName,
+        'ID_Lead': datosLead.id,
+        'Nombre_Cliente': datosLead.nombre,
+        'Email': datosLead.email || '',
+        'Telefono': datosLead.telefono,
+        'Tipo_Credito': datosLead.plan,
+        'Monto_Solicitado': datosLead.monto,
+        'Estado': datosLead.estado,
+        'Asesor_ID': usuarioActual.usuario,
+        'Fecha de la cita': datosLead.fechaCita || '',
+        'Hora de la cita': datosLead.horaCita || '',
+        'Lugar de la cita': datosLead.lugarCita || '',
+        'Observaciones': datosLead.observaciones || ''
+    });
+    
+    console.log('📡 Enviando actualización con parámetros:', Object.fromEntries(params));
+    
+    // Usar EXACTAMENTE el mismo método que funciona para agregar leads
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        console.log('❌ Error cargando script de actualización');
+        
+        // Restaurar botón
+        const saveButton = document.querySelector(`button[onclick*="guardarEditLead"]`);
+        if (saveButton) {
+            saveButton.innerHTML = '💾 Guardar Cambios';
+            saveButton.disabled = false;
+        }
+        
+        alert('❌ Error de conexión al actualizar lead');
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+    
+    return true;
+}  
   // Función para recargar leads manualmente
         function recargarLeads() {
             console.log('🔄 Recargando leads manualmente...');

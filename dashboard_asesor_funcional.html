@@ -866,6 +866,21 @@
                 
             }, 2000);
         }
+        
+  // Función para recargar leads manualmente
+        function recargarLeads() {
+            console.log('🔄 Recargando leads manualmente...');
+            
+            document.getElementById('leads-container').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h3>Actualizando leads...</h3>
+                    <p>Sincronizando con Google Sheets...</p>
+                </div>
+            `;
+            
+            cargarLeadsDesdeAPI();
+        }
 
         // Función para mostrar leads
         function mostrarLeads() {

@@ -588,7 +588,7 @@
                             <button type="button" class="btn btn-secondary" onclick="cerrarModalEditar()">
                                 Cancelar
                             </button>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" onclick="procesarEdicionLead()">
                                 💾 Actualizar Lead
                             </button>
                         </div>
@@ -772,6 +772,9 @@
             </div>
         </div>
 
+
+
+            
     <script>
         // URL de tu Google Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbw6IbmYDwgg1YEnUV5yVIYkFe5sEw-_H8l69tBSt8yo-BVRGICZM2QiLm7NwmNRgiCy/exec';
@@ -781,7 +784,7 @@
         let leadsData = [];
         let filtroActual = 'TODOS';
 
-        // Datos de ejemplo como fallback
+            // Datos de ejemplo como fallback
         const leadsEjemplo = {
             'jose-luis': [
                 {
@@ -1649,7 +1652,19 @@ function mostrarLeads() {
                 }
             }
         });
-
+        
+ function procesarEdicionLead() {
+        console.log('🔥 BOTÓN CLICKEADO DIRECTAMENTE');
+        
+        const leadId = document.getElementById('editar-id').value;
+        console.log('📋 Lead ID desde botón:', leadId);
+        
+        const formEditar = document.getElementById('formEditarLead');
+        if (formEditar) {
+            const evento = new Event('submit', { bubbles: true, cancelable: true });
+            formEditar.dispatchEvent(evento);
+        }
+    }
         console.log('🚀 Dashboard Asesor cargado');
     </script>
 </body>

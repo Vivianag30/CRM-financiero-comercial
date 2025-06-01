@@ -817,22 +817,35 @@
         }
 
         
-// FUNCIÓN REAL PARA CARGAR LEADS - POPUP REAL METHOD
+// FUNCIÓN REAL PARA CARGAR LEADS - POPUP REAL METHOD (CORREGIDA)
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Cargando leads REALES desde Google Sheets...');
             
             const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}`;
             console.log('🔗 URL completa:', fullUrl);
             
-            // Abrir popup como con el login (que SÍ funciona)
-            const popup = window.open(fullUrl, 'loadLeads', 'width=800,height=600');
+            // Abrir popup
+            let popup = null;
+            try {
+                popup = window.open(fullUrl, 'loadLeads', 'width=800,height=600');
+            } catch (error) {
+                console.log('❌ Error abriendo popup:', error);
+                mostrarLeads();
+                return;
+            }
+            
+            if (!popup) {
+                console.log('❌ No se pudo abrir popup');
+                mostrarLeads();
+                return;
+            }
             
             console.log('📡 Popup abierto, esperando respuesta...');
             
             // Intentar leer la respuesta del popup
             const checkResponse = setInterval(() => {
                 try {
-                    if (popup.closed) {
+                    if (!popup || popup.closed) {
                         console.log('❌ Popup cerrado antes de obtener respuesta');
                         clearInterval(checkResponse);
                         leadsData = [];
@@ -858,11 +871,6 @@
                                 if (response.success && response.data) {
                                     leadsData = response.data;
                                     console.log('✅ Leads REALES cargados:', leadsData.length);
-                                    
-                                    // Mostrar información de cada lead REAL
-                                    leadsData.forEach((lead, index) => {
-                                        console.log(`📋 Lead REAL ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto}`);
-                                    });
                                 } else {
                                     console.log('⚠️ Respuesta sin datos:', response);
                                     leadsData = [];
@@ -870,7 +878,10 @@
                                 
                                 mostrarLeads();
                                 actualizarMetricas();
-                                popup.close();
+                                
+                                if (popup && !popup.closed) {
+                                    popup.close();
+                                }
                                 clearInterval(checkResponse);
                                 
                             } catch (jsonError) {
@@ -886,13 +897,12 @@
             
             // Timeout de seguridad
             setTimeout(() => {
-                if (!popup.closed) {
+                if (popup && !popup.closed) {
                     console.log('⏰ Timeout - cerrando popup');
                     popup.close();
                 }
                 clearInterval(checkResponse);
                 
-                // Si no se obtuvieron leads, mostrar mensaje apropiado
                 if (leadsData.length === 0) {
                     console.log('⚠️ No se pudieron cargar leads del Google Sheets');
                     mostrarLeads();

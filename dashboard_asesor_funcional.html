@@ -817,63 +817,102 @@
         }
 
         
- // FUNCIÓN QUE USA LA MISMA TÉCNICA EXITOSA DEL LOGIN
-        function cargarLeadsDesdeAPI() {
-            console.log('🔄 Cargando leads usando técnica del login...');
+ // FUNCIÓN MEJORADA PARA CARGAR LEADS REALES
+function cargarLeadsDesdeAPI() {
+    console.log('🔄 Cargando leads REALES desde Google Sheets...');
+    console.log('👤 Usuario actual:', usuarioActual.usuario);
+    
+    // Limpiar datos previos
+    window.leadsDataReceived = null;
+    
+    // Mostrar estado de carga
+    document.getElementById('leads-container').innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <h3>Cargando leads...</h3>
+            <p>Conectando con Google Sheets...</p>
+        </div>
+    `;
+    
+    // Construir URL con parámetros
+    const params = new URLSearchParams({
+        action: 'getLeads',
+        asesorId: usuarioActual.usuario,
+        empresaId: 'EMP001'
+    });
+    
+    const leadsUrl = `${API_URL}?${params.toString()}`;
+    console.log('🔗 URL completa:', leadsUrl);
+    
+    // Abrir popup (misma técnica del login exitoso)
+    const popup = window.open(leadsUrl, 'leadsWindow', 'width=800,height=600,scrollbars=yes');
+    
+    if (!popup) {
+        console.log('❌ Error: Popup bloqueado por el navegador');
+        alert('⚠️ Popup bloqueado. Por favor permite popups para este sitio.');
+        mostrarLeads();
+        return;
+    }
+    
+    console.log('📡 Popup abierto, esperando datos...');
+    
+    // Verificar datos cada segundo
+    const checkData = setInterval(() => {
+        if (window.leadsDataReceived) {
+            console.log('✅ ¡DATOS REALES RECIBIDOS!');
+            console.log('📊 Cantidad de leads:', window.leadsDataReceived.length);
             
-            // Usar la MISMA técnica que el login (que SÍ funciona)
-            const params = new URLSearchParams({
-                action: 'getLeads',
-                asesorId: usuarioActual.usuario,
-                empresaId: 'EMP001'
+            // Asignar datos reales
+            leadsData = window.leadsDataReceived;
+            
+            // Log de cada lead
+            leadsData.forEach((lead, index) => {
+                console.log(`📋 Lead ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto?.toLocaleString() || 0}`);
             });
             
-            const leadsUrl = `${API_URL}?${params.toString()}`;
-            console.log('🔗 URL:', leadsUrl);
+            // Mostrar en interfaz
+            mostrarLeads();
+            actualizarMetricas();
             
-            // Abrir popup como en el login
-            const popup = window.open(leadsUrl, '_blank', 'width=800,height=600');
+            // Limpiar
+            clearInterval(checkData);
+            window.leadsDataReceived = null;
             
-            console.log('📡 Popup abierto (técnica del login)');
+            if (popup && !popup.closed) {
+                popup.close();
+            }
             
-            // Verificar cada segundo si hay datos
-            const checkData = setInterval(() => {
-                if (window.leadsDataReceived) {
-                    console.log('✅ ¡DATOS REALES RECIBIDOS!', window.leadsDataReceived);
-                    
-                    leadsData = window.leadsDataReceived;
-                    
-                    console.log(`📊 Leads REALES para ${usuarioActual.usuario}:`, leadsData.length);
-                    
-                    // Mostrar cada lead real
-                    leadsData.forEach((lead, index) => {
-                        console.log(`📋 Lead REAL ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto}`);
-                    });
-                    
-                    mostrarLeads();
-                    actualizarMetricas();
-                    
-                    // Limpiar
-                    clearInterval(checkData);
-                    delete window.leadsDataReceived;
-                    
-                    if (popup) popup.close();
-                }
-            }, 1000);
-            
-            // Timeout
-            setTimeout(() => {
-                clearInterval(checkData);
-                if (popup) popup.close();
-                
-                if (!window.leadsDataReceived) {
-                    console.log('⚠️ Timeout - no se recibieron datos');
-                    leadsData = [];
-                    mostrarLeads();
-                    actualizarMetricas();
-                }
-            }, 10000);
+            return;
         }
+        
+        // Verificar si popup fue cerrado manualmente
+        if (popup.closed) {
+            console.log('⚠️ Popup cerrado por el usuario');
+            clearInterval(checkData);
+            if (!window.leadsDataReceived) {
+                leadsData = [];
+                mostrarLeads();
+                actualizarMetricas();
+            }
+        }
+    }, 1000);
+    
+    // Timeout de seguridad (15 segundos)
+    setTimeout(() => {
+        clearInterval(checkData);
+        
+        if (popup && !popup.closed) {
+            popup.close();
+        }
+        
+        if (!window.leadsDataReceived) {
+            console.log('⏰ Timeout - no se recibieron datos en 15 segundos');
+            leadsData = [];
+            mostrarLeads();
+            actualizarMetricas();
+        }
+    }, 15000);
+}
         
   // Función para recargar leads manualmente
         function recargarLeads() {

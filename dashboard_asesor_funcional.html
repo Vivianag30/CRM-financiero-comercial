@@ -1303,6 +1303,7 @@ function mostrarLeads() {
                     <div class="lead-meta">
                         <span>📅 Creado: ${lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'Sin fecha'}</span>
                         <span>📧 ${lead.email || 'Sin email'}</span>
+                        ${lead.observaciones ? `<span>📝 ${lead.observaciones}</span>` : ''}
                     </div>
                     ${infoCita}
                 </div>

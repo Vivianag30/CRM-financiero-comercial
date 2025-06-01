@@ -790,7 +790,7 @@
         function verDetalle(leadId) {
             const lead = leadsData.find(l => l.id === leadId);
             if (lead) {
-                alert(`👤 DETALLE DEL LEAD\n\nNombre: ${lead.nombre}\nTeléfono: ${lead.telefono}\nEmail: ${lead.email}\nPlan: ${lead.plan}\nMonto: $${lead.monto.toLocaleString()}\nEstado: ${lead.estado}\nCreado: ${new Date(lead.fechaCreacion).toLocaleDateString()}`);
+                alert(`👤 DETALLE DEL LEAD\n\nNombre: ${lead.nombre}\nTeléfono: ${lead.telefono}\nEmail: ${lead.email}\nPlan: ${lead.plan}\nMonto: ${lead.monto.toLocaleString()}\nEstado: ${lead.estado}\nCreado: ${new Date(lead.fechaCreacion).toLocaleDateString()}`);
             }
         }
 
@@ -821,6 +821,33 @@
             console.log('💾 Guardando lead en Google Sheets...');
             console.log('📊 Datos del lead:', datosLead);
             
+            // Generar ID único para el lead
+            const leadId = 'LEAD-' + Date.now().toString();
+            const fechaActual = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const fechaHoraActual = new Date().toLocaleString('es-EC'); // Fecha y hora local
+            
+            // MAPEO CORRECTO según tu estructura de Google Sheets
+            const campos = {
+                action: 'addLead',
+                // Mapeo exacto a tu estructura:
+                ID_Lead: leadId,
+                Nombre_Cliente: datosLead.nombre,
+                Email: datosLead.email || '',
+                Telefono: datosLead.telefono,
+                Empresa_Cliente: 'Cliente Independiente', // Valor por defecto
+                Tipo_Credito: datosLead.plan, // Plan del formulario -> Tipo_Credito en Sheets
+                Monto_Solicitado: datosLead.monto,
+                Estado: datosLead.estado,
+                Asesor_ID: usuarioActual.usuario,
+                Fecha_Creacion: fechaActual,
+                Ultima_Gestion: fechaHoraActual,
+                Observaciones: datosLead.observaciones || 'Nuevo lead ingresado desde CRM',
+                Probabilidad: calcularProbabilidadInicial(datosLead.estado),
+                Empresa_ID: 'EMP001' // ID de tu empresa
+            };
+
+            console.log('📋 Campos mapeados para Google Sheets:', campos);
+            
             // USAR LA MISMA TÉCNICA EXITOSA DEL LOGIN
             const popup = window.open('', '_blank', 'width=1,height=1');
             
@@ -831,19 +858,7 @@
             form.target = popup.name;
             form.style.display = 'none';
 
-            // Agregar todos los campos
-            const campos = {
-                action: 'addLead',
-                nombre: datosLead.nombre,
-                telefono: datosLead.telefono,
-                email: datosLead.email,
-                monto: datosLead.monto,
-                estado: datosLead.estado,
-                plan: datosLead.plan,
-                asesor: usuarioActual.usuario,
-                observaciones: datosLead.observaciones
-            };
-
+            // Agregar todos los campos con mapeo correcto
             Object.keys(campos).forEach(key => {
                 const input = document.createElement('input');
                 input.name = key;
@@ -854,7 +869,7 @@
             document.body.appendChild(form);
             form.submit();
 
-            console.log('✅ Lead enviado a Google Sheets');
+            console.log('✅ Lead enviado a Google Sheets con mapeo correcto');
             
             // Cerrar popup después de envío
             setTimeout(() => {
@@ -864,7 +879,7 @@
 
             // Agregar lead a la lista local para actualización inmediata
             const nuevoLead = {
-                id: 'LEAD-' + Date.now().toString().slice(-6),
+                id: leadId,
                 nombre: datosLead.nombre,
                 telefono: datosLead.telefono,
                 email: datosLead.email || '',
@@ -872,7 +887,7 @@
                 estado: datosLead.estado,
                 plan: datosLead.plan,
                 asesor: usuarioActual.usuario,
-                fechaCreacion: new Date().toISOString().split('T')[0],
+                fechaCreacion: fechaActual,
                 observaciones: datosLead.observaciones || ''
             };
 
@@ -886,6 +901,17 @@
             actualizarMetricas();
             
             return true;
+        }
+
+        // Función auxiliar para calcular probabilidad inicial basada en estado
+        function calcularProbabilidadInicial(estado) {
+            const probabilidades = {
+                'NUEVO': '25',
+                'INTERESADO': '50', 
+                'GESTIONANDO': '75',
+                'CERRADOS': '100'
+            };
+            return probabilidades[estado] || '25';
         }
 
         // Función para cerrar sesión

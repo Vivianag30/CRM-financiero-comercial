@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Financiero - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .status {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .demo-users {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .demo-users h4 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .demo-users div {
+            margin-bottom: 5px;
+            color: #666;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .demo-users div:hover {
+            background: #e9ecef;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">💼 CRM Financiero</div>
+        <div class="subtitle">Sistema de Gestión Integral</div>
+        
+        <div class="status">
+            ✅ Sistema funcionando correctamente
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Usuario:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="button" class="login-btn" id="loginBtn" onclick="realizarLogin()">
+            Iniciar Sesión
+        </button>
+        
+        <div class="loading" id="loading">
+            Validando credenciales...
+        </div>
+        
+        <div class="message" id="message"></div>
+
+        <div class="demo-users">
+            <h4>👥 Usuarios de Prueba</h4>
+            <div><strong>Asesores:</strong></div>
+            <div onclick="completarUsuario('jose-luis', 'password123')">• jose-luis / password123 (Senior)</div>
+            <div onclick="completarUsuario('ana-rodriguez', 'password123')">• ana-rodriguez / password123 (Asesor)</div>
+            <div onclick="completarUsuario('carlos-mendez', 'password123')">• carlos-mendez / password123 (Junior)</div>
+            <div><strong>Gerente:</strong></div>
+            <div onclick="completarUsuario('maria-gonzalez', 'admin123')">• maria-gonzalez / admin123 (Gerencial)</div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de usuarios
+        const usuarios = {
+            'jose-luis': {
+                password: 'password123',
+                nombre: 'José Luis Martínez',
+                cargo: 'Senior',
+                email: 'jlmartinez@empresa.com',
+                telefono: '0998765432',
+                tipo: 'ASESOR',
+                estado: 'ACTIVO'
+            },
+            'ana-rodriguez': {
+                password: 'password123',
+                nombre: 'Ana Rodríguez López',
+                cargo: 'Asesor',
+                email: 'arodriguez@empresa.com',
+                telefono: '0987654321',
+                tipo: 'ASESOR',
+                estado: 'ACTIVO'
+            },
+            'carlos-mendez': {
+                password: 'password123',
+                nombre: 'Carlos Méndez Silva',
+                cargo: 'Junior',
+                email: 'cmendez@empresa.com',
+                telefono: '0976543210',
+                tipo: 'ASESOR',
+                estado: 'ACTIVO'
+            },
+            'maria-gonzalez': {
+                password: 'admin123',
+                nombre: 'María González',
+                cargo: 'Gerente General',
+                email: 'mgonzalez@empresa.com',
+                telefono: '0999888777',
+                tipo: 'GERENTE',
+                estado: 'ACTIVO'
+            }
+        };
+
+        // Función para completar usuario automáticamente
+        function completarUsuario(usuario, password) {
+            document.getElementById('username').value = usuario;
+            document.getElementById('password').value = password;
+        }
+
+        // Función para mostrar mensaje
+        function mostrarMensaje(mensaje, tipo) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = mensaje;
+            messageElement.className = 'message ' + tipo;
+            messageElement.style.display = 'block';
+        }
+
+        // Función para limpiar mensajes
+        function limpiarMensajes() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        // Función para mostrar loading
+        function mostrarLoading(mostrar) {
+            const loading = document.getElementById('loading');
+            const btn = document.getElementById('loginBtn');
+            
+            if (mostrar) {
+                loading.style.display = 'block';
+                btn.disabled = true;
+                btn.textContent = 'Validando...';
+            } else {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        // Función principal de login
+        function realizarLogin() {
+            console.log('🚀 Botón clickeado - Iniciando login...');
+            
+            limpiarMensajes();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            console.log('👤 Usuario:', username);
+            console.log('🔑 Password:', password ? 'Introducido' : 'Vacío');
+            
+            if (!username || !password) {
+                mostrarMensaje('Por favor complete todos los campos', 'error');
+                return;
+            }
+            
+            mostrarLoading(true);
+            
+            // Simular validación
+            setTimeout(() => {
+                const usuario = usuarios[username];
+                
+                if (!usuario) {
+                    mostrarMensaje('Usuario no encontrado', 'error');
+                    mostrarLoading(false);
+                    return;
+                }
+                
+                if (usuario.password !== password) {
+                    mostrarMensaje('Contraseña incorrecta', 'error');
+                    mostrarLoading(false);
+                    return;
+                }
+                
+                if (usuario.estado !== 'ACTIVO') {
+                    mostrarMensaje('Usuario inactivo', 'error');
+                    mostrarLoading(false);
+                    return;
+                }
+                
+                // Login exitoso
+                console.log('✅ Login exitoso para:', usuario.nombre);
+                mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+                
+                // Guardar sesión
+                try {
+                    const sesion = {
+                        usuario: username,
+                        datos: usuario,
+                        timestamp: new Date().getTime()
+                    };
+                    sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
+                    console.log('💾 Sesión guardada');
+                } catch (e) {
+                    console.log('⚠️ SessionStorage no disponible');
+                }
+                
+                // Redirigir según tipo de usuario
+                setTimeout(() => {
+                    if (usuario.tipo === 'GERENTE') {
+                        alert(`¡Bienvenida ${usuario.nombre}!\n\n🎯 Tipo: ${usuario.tipo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Dashboard Gerencial próximamente...`);
+                    } else {
+                        alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Dashboard Asesor próximamente...`);
+                    }
+                    
+                    // Reset para probar otros usuarios
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    mostrarLoading(false);
+                    limpiarMensajes();
+                    
+                }, 2000);
+                
+            }, 1000);
+        }
+
+        // Event listener para Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                realizarLogin();
+            }
+        });
+
+        console.log('🚀 Login CRM Financiero cargado correctamente');
+        console.log('👥 Usuarios disponibles:', Object.keys(usuarios));
+    </script>
+</body>
+</html>

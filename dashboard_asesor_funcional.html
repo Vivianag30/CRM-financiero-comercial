@@ -887,6 +887,186 @@ async function cargarLeadsDesdeAPI() {
     mostrarLeads();
     actualizarMetricas();
 }
+// FUNCIÓN PARA EDITAR LEAD - DESDE CERO
+function editarLead(leadId) {
+    console.log('🔧 Editando lead:', leadId);
+    
+    // Buscar el lead en los datos actuales
+    const lead = leadsData.find(l => l.id === leadId);
+    
+    if (!lead) {
+        alert('Lead no encontrado');
+        return;
+    }
+    
+    console.log('📋 Lead encontrado:', lead);
+    
+    // Crear formulario de edición
+    const modalHTML = `
+        <div id="editModal" style="
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            z-index: 1000;
+        ">
+            <div style="
+                background: white; 
+                padding: 30px; 
+                border-radius: 10px; 
+                width: 500px; 
+                max-height: 80vh; 
+                overflow-y: auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            ">
+                <h2>✏️ Editar Lead: ${lead.nombre}</h2>
+                
+                <form id="editForm">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nombre:</label>
+                        <input type="text" id="edit_nombre" value="${lead.nombre}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Teléfono:</label>
+                        <input type="text" id="edit_telefono" value="${lead.telefono}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
+                        <input type="email" id="edit_email" value="${lead.email}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Monto:</label>
+                        <input type="number" id="edit_monto" value="${lead.monto}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Estado:</label>
+                        <select id="edit_estado" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="NUEVOS" ${lead.estado === 'NUEVOS' ? 'selected' : ''}>🆕 NUEVOS</option>
+                            <option value="INTERESADO" ${lead.estado === 'INTERESADO' ? 'selected' : ''}>👀 INTERESADO</option>
+                            <option value="GESTIONANDO" ${lead.estado === 'GESTIONANDO' ? 'selected' : ''}>⚡ GESTIONANDO</option>
+                            <option value="CALIENTE" ${lead.estado === 'CALIENTE' ? 'selected' : ''}>🔥 CALIENTE</option>
+                            <option value="REAGENDO" ${lead.estado === 'REAGENDO' ? 'selected' : ''}>📅 REAGENDO</option>
+                            <option value="PERDIDO" ${lead.estado === 'PERDIDO' ? 'selected' : ''}>❌ PERDIDO</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Plan:</label>
+                        <select id="edit_plan" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="PERSONAL" ${lead.plan === 'PERSONAL' ? 'selected' : ''}>👤 PERSONAL</option>
+                            <option value="COMERCIAL" ${lead.plan === 'COMERCIAL' ? 'selected' : ''}>🏢 COMERCIAL</option>
+                            <option value="HIPOTECARIO" ${lead.plan === 'HIPOTECARIO' ? 'selected' : ''}>🏠 HIPOTECARIO</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Observaciones:</label>
+                        <textarea id="edit_observaciones" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 80px;">${lead.observaciones || ''}</textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" onclick="cerrarEditModal()" style="
+                            padding: 10px 20px; 
+                            background: #6c757d; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 5px; 
+                            cursor: pointer;
+                        ">Cancelar</button>
+                        
+                        <button type="button" onclick="guardarEditLead('${leadId}')" style="
+                            padding: 10px 20px; 
+                            background: #007bff; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 5px; 
+                            cursor: pointer;
+                        ">💾 Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // Agregar modal al DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// FUNCIÓN PARA CERRAR MODAL
+function cerrarEditModal() {
+    const modal = document.getElementById('editModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// FUNCIÓN PARA GUARDAR CAMBIOS
+async function guardarEditLead(leadId) {
+    console.log('💾 Guardando cambios para lead:', leadId);
+    
+    try {
+        // Recoger datos del formulario
+        const datosEditados = {
+            ID_Lead: leadId,
+            Nombre_Cliente: document.getElementById('edit_nombre').value,
+            Telefono: document.getElementById('edit_telefono').value,
+            Email: document.getElementById('edit_email').value,
+            Monto_Solicitado: document.getElementById('edit_monto').value,
+            Estado: document.getElementById('edit_estado').value,
+            Tipo_Credito: document.getElementById('edit_plan').value,
+            Observaciones: document.getElementById('edit_observaciones').value,
+            Asesor_ID: usuarioActual.usuario
+        };
+        
+        console.log('📝 Datos a enviar:', datosEditados);
+        
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('action', 'updateLead');
+        
+        Object.keys(datosEditados).forEach(key => {
+            formData.append(key, datosEditados[key]);
+        });
+        
+        // Enviar a Google Apps Script
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        console.log('📡 Respuesta de Google Sheets:', result);
+        
+        if (result.success) {
+            console.log('✅ Lead actualizado exitosamente');
+            alert('✅ Lead actualizado correctamente');
+            
+            // Cerrar modal
+            cerrarEditModal();
+            
+            // Recargar leads para mostrar cambios
+            cargarLeadsDesdeAPI();
+            
+        } else {
+            console.log('❌ Error al actualizar:', result.message);
+            alert('❌ Error al actualizar: ' + result.message);
+        }
+        
+    } catch (error) {
+        console.log('❌ Error:', error);
+        alert('❌ Error de conexión: ' + error.message);
+    }
+}
+
         
   // Función para recargar leads manualmente
         function recargarLeads() {

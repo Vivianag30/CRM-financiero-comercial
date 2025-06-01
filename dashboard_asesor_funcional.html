@@ -1120,65 +1120,79 @@ function guardarEditLead(leadId) {
             cargarLeadsDesdeAPI();
         }
 
-        // Función para mostrar leads
-        function mostrarLeads() {
-            console.log('📋 Mostrando leads...');
-            console.log('📊 Total leads:', leadsData.length);
-            console.log('🔍 Filtro actual:', filtroActual);
+       // Función para mostrar leads - CON CAMPOS DE CITA
+function mostrarLeads() {
+    console.log('📋 Mostrando leads...');
+    console.log('📊 Total leads:', leadsData.length);
+    console.log('🔍 Filtro actual:', filtroActual);
+    
+    const container = document.getElementById('leads-container');
+    
+    if (!container) {
+        console.error('❌ No se encontró el contenedor leads-container');
+        return;
+    }
+    
+    let leadsFiltrados = leadsData;
+    if (filtroActual !== 'TODOS') {
+        leadsFiltrados = leadsData.filter(lead => lead.estado === filtroActual);
+        console.log('🔍 Leads filtrados:', leadsFiltrados.length);
+    }
+    if (leadsFiltrados.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
+                <h3>No hay leads ${filtroActual === 'TODOS' ? '' : 'en estado ' + filtroActual}</h3>
+                <p>¡Empieza agregando tu primer lead!</p>
+            </div>
+        `;
+        return;
+    }
+    console.log('✅ Generando HTML para', leadsFiltrados.length, 'leads');
+    
+    const leadsHTML = leadsFiltrados.map((lead, index) => {
+        console.log(`📋 Procesando lead ${index + 1}:`, lead.nombre);
+        
+        // Formatear fecha de cita
+        let infoCita = '';
+        if (lead.fechaCita || lead.horaCita || lead.lugarCita) {
+            const fechaFormateada = lead.fechaCita ? new Date(lead.fechaCita).toLocaleDateString('es-ES') : '';
+            const horaFormateada = lead.horaCita || '';
+            const lugarFormateado = lead.lugarCita || '';
             
-            const container = document.getElementById('leads-container');
-            
-            if (!container) {
-                console.error('❌ No se encontró el contenedor leads-container');
-                return;
-            }
-            
-            let leadsFiltrados = leadsData;
-            if (filtroActual !== 'TODOS') {
-                leadsFiltrados = leadsData.filter(lead => lead.estado === filtroActual);
-                console.log('🔍 Leads filtrados:', leadsFiltrados.length);
-            }
-
-            if (leadsFiltrados.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
-                        <h3>No hay leads ${filtroActual === 'TODOS' ? '' : 'en estado ' + filtroActual}</h3>
-                        <p>¡Empieza agregando tu primer lead!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('✅ Generando HTML para', leadsFiltrados.length, 'leads');
-            
-            const leadsHTML = leadsFiltrados.map((lead, index) => {
-                console.log(`📋 Procesando lead ${index + 1}:`, lead.nombre);
-                
-                return `
-                    <div class="lead-item">
-                        <div class="lead-info">
-                            <div class="lead-name">${lead.nombre || 'Nombre no disponible'}</div>
-                            <div class="lead-details">
-                                📱 ${lead.telefono || 'Sin teléfono'} | 💰 ${(lead.monto || 0).toLocaleString()} | 💳 ${lead.plan || 'Sin plan'}
-                            </div>
-                            <div class="lead-meta">
-                                <span>📅 Creado: ${lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'Sin fecha'}</span>
-                                <span>📧 ${lead.email || 'Sin email'}</span>
-                            </div>
-                        </div>
-                        <div class="lead-actions">
-                            <span class="status-badge status-${(lead.estado || 'pendiente').toLowerCase()}">${lead.estado || 'PENDIENTE'}</span>
-                            <button class="action-btn" onclick="verDetalle('${lead.id}')">👁️ Ver</button>
-                            <button class="action-btn" onclick="editarLead('${lead.id}')">✏️ Editar</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            container.innerHTML = leadsHTML;
-            console.log('✅ Leads mostrados en la interfaz');
+            infoCita = `
+                <div class="lead-cita" style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #007bff;">
+                    ${fechaFormateada ? `📅 ${fechaFormateada}` : ''}
+                    ${horaFormateada ? ` ⏰ ${horaFormateada}` : ''}
+                    ${lugarFormateado ? `<br>📍 ${lugarFormateado}` : ''}
+                </div>
+            `;
         }
+        
+        return `
+            <div class="lead-item">
+                <div class="lead-info">
+                    <div class="lead-name">${lead.nombre || 'Nombre no disponible'}</div>
+                    <div class="lead-details">
+                        📱 ${lead.telefono || 'Sin teléfono'} | 💰 ${(lead.monto || 0).toLocaleString()} | 💳 ${lead.plan || 'Sin plan'}
+                    </div>
+                    <div class="lead-meta">
+                        <span>📅 Creado: ${lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'Sin fecha'}</span>
+                        <span>📧 ${lead.email || 'Sin email'}</span>
+                    </div>
+                    ${infoCita}
+                </div>
+                <div class="lead-actions">
+                    <span class="status-badge status-${(lead.estado || 'pendiente').toLowerCase()}">${lead.estado || 'PENDIENTE'}</span>
+                    <button class="action-btn" onclick="verDetalle('${lead.id}')">👁️ Ver</button>
+                    <button class="action-btn" onclick="editarLead('${lead.id}')">✏️ Editar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    container.innerHTML = leadsHTML;
+    console.log('✅ Leads mostrados en la interfaz');
+}
 
         // Función para actualizar métricas
         function actualizarMetricas() {

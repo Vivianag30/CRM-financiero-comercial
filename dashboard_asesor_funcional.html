@@ -1001,17 +1001,29 @@
             }
         }
 
-        // Función para actualizar lead en Google Sheets
+       // FUNCIÓN REAL PARA ACTUALIZAR LEADS
         function actualizarLeadEnGoogleSheets(datosLead) {
-            console.log('🔄 Actualizando lead en Google Sheets...');
-            console.log('📊 Datos del lead:', datosLead);
+            console.log('🔄 Actualizando lead REAL en Google Sheets...');
             
-            const fechaHoraActual = new Date().toLocaleString('es-EC');
+            const callbackName = 'updateLead_' + Date.now();
+            window[callbackName] = function(response) {
+                console.log('📡 Respuesta actualizar:', response);
+                
+                if (response.success) {
+                    alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+                    cerrarModalEditar();
+                    // Recargar leads automáticamente
+                    cargarLeadsDesdeAPI();
+                } else {
+                    alert(`❌ Error actualizando lead: ${response.message}`);
+                }
+                
+                delete window[callbackName];
+            };
             
-            // MAPEO CORRECTO para actualización
-            const campos = {
+            const params = new URLSearchParams({
                 action: 'updateLead',
-                // Usar nombres EXACTOS de las columnas:
+                callback: callbackName,
                 'ID_Lead': datosLead.id,
                 'Nombre_Cliente': datosLead.nombre,
                 'Email': datosLead.email || '',
@@ -1023,65 +1035,12 @@
                 'Fecha de la cita': datosLead.fechaCita || '',
                 'Hora de la cita': datosLead.horaCita || '',
                 'Lugar de la cita': datosLead.lugarCita || '',
-                'Ultima_Gestion': fechaHoraActual,
-                'Observaciones': datosLead.observaciones || '',
-                'Probabilidad': calcularProbabilidadInicial(datosLead.estado)
-            };
-
-            console.log('📋 Campos mapeados para actualización:', campos);
-            
-            // USAR LA MISMA TÉCNICA EXITOSA
-            const popup = window.open('', '_blank', 'width=1,height=1');
-            
-            // Crear formulario para enviar datos
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = API_URL;
-            form.target = popup.name;
-            form.style.display = 'none';
-
-            // Agregar todos los campos
-            Object.keys(campos).forEach(key => {
-                const input = document.createElement('input');
-                input.name = key;
-                input.value = campos[key] || '';
-                form.appendChild(input);
+                'Observaciones': datosLead.observaciones || ''
             });
-
-            document.body.appendChild(form);
-            form.submit();
-
-            console.log('✅ Lead actualizado enviado a Google Sheets');
             
-            // Cerrar popup después de envío
-            setTimeout(() => {
-                if (popup) popup.close();
-                document.body.removeChild(form);
-            }, 2000);
-
-            // Actualizar lead en la lista local
-            const leadIndex = leadsData.findIndex(l => l.id === datosLead.id);
-            if (leadIndex !== -1) {
-                leadsData[leadIndex] = {
-                    ...leadsData[leadIndex],
-                    nombre: datosLead.nombre,
-                    telefono: datosLead.telefono,
-                    email: datosLead.email || '',
-                    monto: parseInt(datosLead.monto),
-                    estado: datosLead.estado,
-                    plan: datosLead.plan,
-                    fechaCita: datosLead.fechaCita || '',
-                    horaCita: datosLead.horaCita || '',
-                    lugarCita: datosLead.lugarCita || '',
-                    observaciones: datosLead.observaciones || ''
-                };
-            }
-            
-            console.log('📊 Lead actualizado en la lista local');
-            
-            // Actualizar interfaz inmediatamente
-            mostrarLeads();
-            actualizarMetricas();
+            const script = document.createElement('script');
+            script.src = `${API_URL}?${params.toString()}`;
+            document.head.appendChild(script);
             
             return true;
         }

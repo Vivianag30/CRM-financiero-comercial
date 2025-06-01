@@ -1126,6 +1126,15 @@ function mostrarLeads() {
     console.log('📊 Total leads:', leadsData.length);
     console.log('🔍 Filtro actual:', filtroActual);
     
+    // DEBUG - Ver qué datos tenemos
+    console.log('🔍 DEBUG - Primer lead completo:', leadsData[0]);
+    if (leadsData[0]) {
+        console.log('🔍 DEBUG - Campos de cita del primer lead:');
+        console.log('  fechaCita:', leadsData[0].fechaCita);
+        console.log('  horaCita:', leadsData[0].horaCita);  
+        console.log('  lugarCita:', leadsData[0].lugarCita);
+    }
+    
     const container = document.getElementById('leads-container');
     
     if (!container) {
@@ -1153,9 +1162,18 @@ function mostrarLeads() {
     const leadsHTML = leadsFiltrados.map((lead, index) => {
         console.log(`📋 Procesando lead ${index + 1}:`, lead.nombre);
         
+        // DEBUG por lead individual
+        if (index === 0) {
+            console.log('🔍 DEBUG - Datos de cita del primer lead:');
+            console.log('  fechaCita:', lead.fechaCita);
+            console.log('  horaCita:', lead.horaCita);
+            console.log('  lugarCita:', lead.lugarCita);
+        }
+        
         // Formatear fecha de cita
         let infoCita = '';
         if (lead.fechaCita || lead.horaCita || lead.lugarCita) {
+            console.log('✅ Lead tiene datos de cita:', lead.nombre);
             const fechaFormateada = lead.fechaCita ? new Date(lead.fechaCita).toLocaleDateString('es-ES') : '';
             const horaFormateada = lead.horaCita || '';
             const lugarFormateado = lead.lugarCita || '';
@@ -1167,6 +1185,8 @@ function mostrarLeads() {
                     ${lugarFormateado ? `<br>📍 ${lugarFormateado}` : ''}
                 </div>
             `;
+        } else {
+            console.log('❌ Lead SIN datos de cita:', lead.nombre);
         }
         
         return `

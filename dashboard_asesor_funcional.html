@@ -817,54 +817,38 @@
         }
 
         
-// Función para cargar leads desde Google Sheets REAL
+// FUNCIÓN REAL PARA CARGAR LEADS
         function cargarLeadsDesdeAPI() {
-            console.log('🔄 Conectando a tu Google Sheets REAL...');
-            console.log('🌐 API URL:', API_URL);
-            console.log('👤 Usuario actual:', usuarioActual.usuario);
+            console.log('🔄 Cargando leads REALES desde Google Sheets...');
             
-            // USAR LA MISMA TÉCNICA EXITOSA DEL LOGIN (POPUP)
-            const params = new URLSearchParams({
-                action: 'getLeads',
-                asesorId: usuarioActual.usuario,
-                empresaId: 'EMP001'
-            });
-            
-            const leadsUrl = `${API_URL}?${params.toString()}`;
-            console.log('🔗 URL completa:', leadsUrl);
-            
-            // Abrir en popup invisible
-            const popup = window.open(leadsUrl, '_blank', 'width=1,height=1');
-            
-            // Simular respuesta exitosa con datos reales
-            setTimeout(() => {
-                if (popup) popup.close();
+            const callbackName = 'loadLeads_' + Date.now();
+            window[callbackName] = function(response) {
+                console.log('📡 Respuesta recibida:', response);
                 
-                // Simular datos recibidos del Google Apps Script
-                const responseData = {
-                    success: true,
-                    data: [
-                        { id: 'LEAD001', nombre: 'Roberto Díaz', telefono: '987654321', email: 'roberto.diaz@email.com', monto: 150000, estado: 'NUEVOS', plan: 'COMERCIAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD002', nombre: 'Laura Vásquez', telefono: '987654322', email: 'laura.vasquez@email.com', monto: 25000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD003', nombre: 'Miguel Torres', telefono: '987654323', email: 'miguel.torres@email.com', monto: 200000, estado: 'GESTIONANDO', plan: 'HIPOTECARIO', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD-17487856', nombre: 'sisepueda', telefono: '985546724', email: 'joselromenohem@email.com', monto: 3000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-06-02' },
-                        { id: 'LEAD-17487683', nombre: 'probandoando', telefono: '985555555', email: 'carambanero@email.com', monto: 4000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-06-02' },
-                        { id: 'LEAD-17487906', nombre: 'coño ya', telefono: '985555554', email: 'carambanero@email.com', monto: 3000, estado: 'NUEVOS', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-06-02' }
-                    ]
-                };
-                
-                if (responseData.success && responseData.data) {
-                    leadsData = responseData.data;
+                if (response.success && response.data) {
+                    leadsData = response.data;
                     console.log('✅ Leads cargados:', leadsData.length);
                 } else {
+                    console.log('⚠️ Error cargando leads:', response.message);
                     leadsData = [];
-                    console.log('⚠️ No se encontraron leads');
                 }
                 
                 mostrarLeads();
                 actualizarMetricas();
                 
-            }, 2000);
+                // Limpiar callback
+                delete window[callbackName];
+            };
+            
+            const script = document.createElement('script');
+            script.src = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&callback=${callbackName}`;
+            document.head.appendChild(script);
+            
+            setTimeout(() => {
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
+            }, 10000);
         }
         
   // Función para recargar leads manualmente
@@ -1119,25 +1103,34 @@
             }
         }
 
-        // Función para guardar lead en Google Sheets
+         // FUNCIÓN REAL PARA GUARDAR LEADS
         function guardarLeadEnGoogleSheets(datosLead) {
-            console.log('💾 Guardando lead en Google Sheets...');
-            console.log('📊 Datos del lead:', datosLead);
+            console.log('💾 Guardando lead REAL en Google Sheets...');
             
-            // Generar ID único para el lead
-            const leadId = 'LEAD-' + Date.now().toString();
-            const fechaActual = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            const fechaHoraActual = new Date().toLocaleString('es-EC'); // Fecha y hora local
+            const callbackName = 'saveLead_' + Date.now();
+            window[callbackName] = function(response) {
+                console.log('📡 Respuesta guardar:', response);
+                
+                if (response.success) {
+                    alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+                    cerrarModal();
+                    // Recargar leads automáticamente
+                    cargarLeadsDesdeAPI();
+                } else {
+                    alert(`❌ Error guardando lead: ${response.message}`);
+                }
+                
+                delete window[callbackName];
+            };
             
-            // MAPEO CORRECTO según tu estructura de Google Sheets
-            const campos = {
+            // Construir parámetros
+            const params = new URLSearchParams({
                 action: 'addLead',
-                // Usar nombres EXACTOS de las columnas:
-                'ID_Lead': leadId,
+                callback: callbackName,
+                'ID_Lead': 'LEAD-' + Date.now(),
                 'Nombre_Cliente': datosLead.nombre,
                 'Email': datosLead.email || '',
                 'Telefono': datosLead.telefono,
-                'Empresa_Cliente': 'Cliente Independiente',
                 'Tipo_Credito': datosLead.plan,
                 'Monto_Solicitado': datosLead.monto,
                 'Estado': datosLead.estado,
@@ -1145,66 +1138,13 @@
                 'Fecha de la cita': datosLead.fechaCita || '',
                 'Hora de la cita': datosLead.horaCita || '',
                 'Lugar de la cita': datosLead.lugarCita || '',
-                'Fecha_Creacion': fechaActual,
-                'Ultima_Gestion': fechaHoraActual,
-                'Observaciones': datosLead.observaciones || 'Nuevo lead ingresado desde CRM',
-                'Probabilidad': calcularProbabilidadInicial(datosLead.estado),
+                'Observaciones': datosLead.observaciones || '',
                 'Empresa_ID': 'EMP001'
-            };
-
-            console.log('📋 Campos mapeados para Google Sheets:', campos);
-            
-            // USAR LA MISMA TÉCNICA EXITOSA DEL LOGIN
-            const popup = window.open('', '_blank', 'width=1,height=1');
-            
-            // Crear formulario para enviar datos
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = API_URL;
-            form.target = popup.name;
-            form.style.display = 'none';
-
-            // Agregar todos los campos con mapeo correcto
-            Object.keys(campos).forEach(key => {
-                const input = document.createElement('input');
-                input.name = key;
-                input.value = campos[key] || '';
-                form.appendChild(input);
             });
-
-            document.body.appendChild(form);
-            form.submit();
-
-            console.log('✅ Lead enviado a Google Sheets con mapeo correcto');
             
-            // Cerrar popup después de envío
-            setTimeout(() => {
-                if (popup) popup.close();
-                document.body.removeChild(form);
-            }, 2000);
-
-            // Agregar lead a la lista local para actualización inmediata
-            const nuevoLead = {
-                id: leadId,
-                nombre: datosLead.nombre,
-                telefono: datosLead.telefono,
-                email: datosLead.email || '',
-                monto: parseInt(datosLead.monto),
-                estado: datosLead.estado,
-                plan: datosLead.plan,
-                asesor: usuarioActual.usuario,
-                fechaCreacion: fechaActual,
-                observaciones: datosLead.observaciones || ''
-            };
-
-            leadsData.push(nuevoLead);
-            
-            console.log('📊 Lead agregado a la lista local');
-            console.log('📈 Total leads ahora:', leadsData.length);
-            
-            // Actualizar interfaz inmediatamente
-            mostrarLeads();
-            actualizarMetricas();
+            const script = document.createElement('script');
+            script.src = `${API_URL}?${params.toString()}`;
+            document.head.appendChild(script);
             
             return true;
         }

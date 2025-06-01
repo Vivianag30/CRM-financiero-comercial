@@ -814,73 +814,33 @@
         }
 
         
-// Función para cargar leads desde Google Sheets REAL
+      // Función para cargar leads desde Google Sheets REAL
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Conectando a tu Google Sheets REAL...');
-            console.log('🌐 API URL:', API_URL);
-            console.log('👤 Usuario actual:', usuarioActual.usuario);
             
-            // Intentar cargar datos reales via JSONP
-            const script = document.createElement('script');
-            const callbackName = 'jsonpCallback_' + Date.now();
-            
-            // Función callback para recibir datos
-            window[callbackName] = function(data) {
-                console.log('📡 Respuesta recibida de Google Sheets:', data);
-                
-                if (data && data.leads && data.leads.length > 0) {
-                    // Filtrar leads para el asesor actual
-                    leadsData = data.leads.filter(lead => 
-                        lead.asesor === usuarioActual.usuario || 
-                        lead.Asesor_ID === usuarioActual.usuario
-                    );
-                    console.log('✅ Leads cargados desde Google Sheets:', leadsData.length);
-                } else {
-                    console.log('⚠️ No se pudieron cargar datos desde Google Sheets, usando datos actualizados');
-                    // Usar datos basados en lo que vemos en tu Google Sheets
-                    leadsData = [
-                        { id: 'LEAD001', nombre: 'Roberto Díaz', telefono: '987654321', email: 'roberto.diaz@email.com', monto: 150000, estado: 'NUEVOS', plan: 'COMERCIAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD002', nombre: 'Laura Vásquez', telefono: '987654322', email: 'laura.vasquez@email.com', monto: 25000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD003', nombre: 'Miguel Torres', telefono: '987654323', email: 'miguel.torres@email.com', monto: 200000, estado: 'GESTIONANDO', plan: 'HIPOTECARIO', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD-3845723', nombre: 'Test1', telefono: '5555555', email: 'elpro@gmail.com', monto: 2000, estado: 'GESTIONANDO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                        { id: 'LEAD-3860928', nombre: 'probando1', telefono: '5555555', email: 'probando@gmail.com', monto: 2000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' }
-                    ];
-                }
-                
-                console.log('📋 Leads del asesor', usuarioActual.usuario, ':', leadsData.length);
-                mostrarLeads();
-                actualizarMetricas();
-                
-                // Limpiar callback
-                if (script.parentNode) {
-                    document.head.removeChild(script);
-                }
-                delete window[callbackName];
-            };
-            
-            // Construir URL con callback
-            const params = new URLSearchParams({
-                action: 'getLeads',
-                asesorId: usuarioActual.usuario,
-                callback: callbackName
-            });
-            
-            script.src = `${API_URL}?${params.toString()}`;
-            script.onerror = function() {
-                console.log('❌ Error al conectar con Google Sheets, usando datos locales');
-                // Fallback con datos conocidos
-                window[callbackName]({ leads: [] });
-            };
-            
-            document.head.appendChild(script);
-            
-            // Timeout de seguridad
-            setTimeout(() => {
-                if (window[callbackName]) {
-                    console.log('⏰ Timeout alcanzado, usando datos locales');
-                    window[callbackName]({ leads: [] });
-                }
-            }, 5000);
+            // Hacer petición real al Google Apps Script
+            fetch(`${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&empresaId=EMP001`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📡 Respuesta de Google Sheets:', data);
+                    
+                    if (data.success && data.data) {
+                        leadsData = data.data;
+                        console.log('✅ Leads cargados:', leadsData.length);
+                    } else {
+                        console.log('⚠️ No se pudieron cargar leads:', data.message);
+                        leadsData = [];
+                    }
+                    
+                    mostrarLeads();
+                    actualizarMetricas();
+                })
+                .catch(error => {
+                    console.error('❌ Error cargando leads:', error);
+                    leadsData = [];
+                    mostrarLeads();
+                    actualizarMetricas();
+                });
         }
 
 

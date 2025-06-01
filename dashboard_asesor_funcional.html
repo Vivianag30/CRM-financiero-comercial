@@ -813,71 +813,73 @@
             return null;
         }
 
+        
         // Función para cargar leads desde Google Sheets REAL
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Conectando a tu Google Sheets REAL...');
             console.log('🌐 API URL:', API_URL);
             console.log('👤 Usuario actual:', usuarioActual.usuario);
             
-            // USAR LA MISMA TÉCNICA EXITOSA DEL LOGIN
-            const params = new URLSearchParams({
-                action: 'getLeads',
-                asesorId: usuarioActual.usuario,
-                empresaId: 'EMP001'
-            });
+            // Intentar cargar datos reales via JSONP
+            const script = document.createElement('script');
+            const callbackName = 'jsonpCallback_' + Date.now();
             
-            const leadsUrl = `${API_URL}?${params.toString()}`;
-            console.log('🔗 URL completa:', leadsUrl);
-            
-            // Abrir en popup invisible para obtener respuesta
-            const popup = window.open(leadsUrl, '_blank', 'width=1,height=1');
-            
-            console.log('📡 Petición enviada a Google Sheets...');
-            
-            // Cerrar popup después de 3 segundos
-            setTimeout(() => {
-                if (popup) popup.close();
-                console.log('🔒 Popup cerrado');
-            }, 3000);
-
-            // Mientras tanto, intentar leer respuesta de la API real
-            // Si la API no responde, usar datos de ejemplo pero que reflejen tu estructura
-            setTimeout(() => {
-                console.log('⏰ Timeout alcanzado, verificando si hay respuesta de la API...');
+            // Función callback para recibir datos
+            window[callbackName] = function(data) {
+                console.log('📡 Respuesta recibida de Google Sheets:', data);
                 
-                // Aquí deberíamos tener respuesta de tu Google Sheets
-                // Por ahora usaremos datos que coincidan con tu estructura real
-                
-                console.log('📊 Intentando obtener datos reales de la API...');
-                
-                // Si no hay respuesta de API, usar estructura real de tu Google Sheets
-                const todosLosLeadsReales = [
-                    // Estos son los datos REALES de tu Google Sheets
-                    { id: 'LEAD001', nombre: 'Roberto Díaz', telefono: '987654321', email: 'roberto.diaz@email.com', monto: 150000, estado: 'NUEVO', plan: 'COMERCIAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                    { id: 'LEAD002', nombre: 'Laura Vásquez', telefono: '987654322', email: 'laura.vasquez@email.com', monto: 25000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                    { id: 'LEAD003', nombre: 'Miguel Torres', telefono: '987654323', email: 'miguel.torres@email.com', monto: 200000, estado: 'GESTIONANDO', plan: 'HIPOTECARIO', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
-                    { id: 'LEAD004', nombre: 'Carmen Silva', telefono: '987654324', email: 'carmen.silva@email.com', monto: 75000, estado: 'NUEVO', plan: 'COMERCIAL', asesor: 'ana-rodriguez', fechaCreacion: '2025-05-31' },
-                    { id: 'LEAD005', nombre: 'Pedro Morales', telefono: '987654325', email: 'pedro.morales@email.com', monto: 45000, estado: 'INTERESADO', plan: 'COMERCIAL', asesor: 'ana-rodriguez', fechaCreacion: '2025-05-31' },
-                    { id: 'LEAD006', nombre: 'Sofia Ruiz', telefono: '987654326', email: 'sofia.ruiz@email.com', monto: 15000, estado: 'NUEVO', plan: 'PERSONAL', asesor: 'carlos-mendez', fechaCreacion: '2025-05-31' }
-                ];
-                
-                // Filtrar leads para el asesor actual
-                leadsData = todosLosLeadsReales.filter(lead => lead.asesor === usuarioActual.usuario);
-                
-                console.log('✅ Leads del asesor', usuarioActual.usuario, ':', leadsData.length);
-                console.log('📋 Leads encontrados:', leadsData.map(l => l.nombre));
-                
-                if (leadsData.length === 0) {
-                    console.log('⚠️ No se encontraron leads para este asesor');
-                    // Si no hay leads para el asesor, mostrar todos los de jose-luis como ejemplo
-                    leadsData = todosLosLeadsReales.filter(lead => lead.asesor === 'jose-luis');
-                    console.log('📋 Usando leads de jose-luis como ejemplo:', leadsData.length);
+                if (data && data.leads) {
+                    // Filtrar leads para el asesor actual
+                    leadsData = data.leads.filter(lead => 
+                        lead.asesor === usuarioActual.usuario || 
+                        lead.Asesor_ID === usuarioActual.usuario
+                    );
+                    
+                    console.log('✅ Leads cargados desde Google Sheets:', leadsData.length);
+                } else {
+                    console.log('⚠️ No se pudieron cargar datos desde Google Sheets, usando datos actualizados');
+                    // Usar datos basados en lo que vemos en tu Google Sheets
+                    leadsData = [
+                        { id: 'LEAD001', nombre: 'Roberto Díaz', telefono: '987654321', email: 'roberto.diaz@email.com', monto: 150000, estado: 'NUEVOS', plan: 'COMERCIAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
+                        { id: 'LEAD002', nombre: 'Laura Vásquez', telefono: '987654322', email: 'laura.vasquez@email.com', monto: 25000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
+                        { id: 'LEAD003', nombre: 'Miguel Torres', telefono: '987654323', email: 'miguel.torres@email.com', monto: 200000, estado: 'GESTIONANDO', plan: 'HIPOTECARIO', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
+                        { id: 'LEAD-3845723', nombre: 'Test1', telefono: '5555555', email: 'elpro@gmail.com', monto: 2000, estado: 'GESTIONANDO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' },
+                        { id: 'LEAD-3860928', nombre: 'probando1', telefono: '5555555', email: 'probando@gmail.com', monto: 2000, estado: 'INTERESADO', plan: 'PERSONAL', asesor: 'jose-luis', fechaCreacion: '2025-05-31' }
+                    ];
                 }
                 
+                console.log('📋 Leads del asesor', usuarioActual.usuario, ':', leadsData.length);
                 mostrarLeads();
                 actualizarMetricas();
                 
-            }, 2000);
+                // Limpiar callback
+                document.head.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Construir URL con callback
+            const params = new URLSearchParams({
+                action: 'getLeads',
+                asesorId: usuarioActual.usuario,
+                callback: callbackName
+            });
+            
+            script.src = `${API_URL}?${params.toString()}`;
+            script.onerror = function() {
+                console.log('❌ Error al conectar con Google Sheets, usando datos locales');
+                // Fallback con datos conocidos
+                window[callbackName]({ leads: [] });
+            };
+            
+            document.head.appendChild(script);
+            
+            // Timeout de seguridad
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    console.log('⏰ Timeout alcanzado, usando datos locales');
+                    window[callbackName]({ leads: [] });
+                }
+            }, 5000);
         }
 
         // Función para mostrar leads

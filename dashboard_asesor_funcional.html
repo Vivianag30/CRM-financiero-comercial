@@ -1009,7 +1009,7 @@ function cerrarEditModal() {
     }
 }
 
-// FUNCIÓN PARA GUARDAR CAMBIOS
+// FUNCIÓN PARA GUARDAR CAMBIOS - VERSIÓN COMPLETA
 async function guardarEditLead(leadId) {
     console.log('💾 Guardando cambios para lead:', leadId);
     
@@ -1037,28 +1037,46 @@ async function guardarEditLead(leadId) {
             formData.append(key, datosEditados[key]);
         });
         
+        console.log('📡 Enviando petición POST a Google Sheets...');
+        
         // Enviar a Google Apps Script
         const response = await fetch(API_URL, {
             method: 'POST',
             body: formData
         });
         
-        const result = await response.json();
-        console.log('📡 Respuesta de Google Sheets:', result);
+        console.log('📡 Respuesta recibida:', response.status);
         
-        if (result.success) {
-            console.log('✅ Lead actualizado exitosamente');
-            alert('✅ Lead actualizado correctamente');
+        if (response.ok) {
+            const text = await response.text();
+            console.log('📡 Contenido de respuesta:', text);
             
-            // Cerrar modal
-            cerrarEditModal();
-            
-            // Recargar leads para mostrar cambios
-            cargarLeadsDesdeAPI();
-            
+            try {
+                const result = JSON.parse(text);
+                console.log('📡 JSON parseado:', result);
+                
+                if (result.success) {
+                    console.log('✅ Lead actualizado exitosamente');
+                    alert('✅ Lead actualizado correctamente');
+                    
+                    // Cerrar modal
+                    cerrarEditModal();
+                    
+                    // Recargar leads para mostrar cambios
+                    console.log('🔄 Recargando leads...');
+                    await cargarLeadsDesdeAPI();
+                    
+                } else {
+                    console.log('❌ Error al actualizar:', result.message);
+                    alert('❌ Error al actualizar: ' + result.message);
+                }
+            } catch (e) {
+                console.log('❌ Error parsing JSON:', e);
+                alert('❌ Error en respuesta del servidor');
+            }
         } else {
-            console.log('❌ Error al actualizar:', result.message);
-            alert('❌ Error al actualizar: ' + result.message);
+            console.log('❌ Error HTTP:', response.status);
+            alert('❌ Error de conexión: ' + response.status);
         }
         
     } catch (error) {
@@ -1066,7 +1084,6 @@ async function guardarEditLead(leadId) {
         alert('❌ Error de conexión: ' + error.message);
     }
 }
-
         
   // Función para recargar leads manualmente
         function recargarLeads() {

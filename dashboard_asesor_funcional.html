@@ -1653,18 +1653,64 @@ function mostrarLeads() {
             }
         });
         
- function procesarEdicionLead() {
-        console.log('🔥 BOTÓN CLICKEADO DIRECTAMENTE');
+function procesarEdicionLead() {
+    console.log('🔥 BOTÓN CLICKEADO DIRECTAMENTE');
+    
+    const leadId = document.getElementById('editar-id').value;
+    console.log('📋 Lead ID desde botón:', leadId);
+    
+    // OBTENER DATOS DIRECTAMENTE
+    const datosLead = {
+        id: leadId,
+        nombre: document.getElementById('editar-nombre').value.trim(),
+        telefono: document.getElementById('editar-telefono').value.trim(),
+        email: document.getElementById('editar-email').value.trim(),
+        monto: document.getElementById('editar-monto').value,
+        estado: document.getElementById('editar-estado').value,
+        plan: document.getElementById('editar-plan').value,
+        fechaCita: document.getElementById('editar-fecha-cita').value,
+        horaCita: document.getElementById('editar-hora-cita').value,
+        lugarCita: document.getElementById('editar-lugar-cita').value,
+        observaciones: document.getElementById('editar-observaciones').value.trim()
+    };
+    
+    console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
+    
+    // ENVÍO JSONP DIRECTO
+    const callbackName = 'updateLead_' + Date.now();
+    window[callbackName] = function(response) {
+        console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
         
-        const leadId = document.getElementById('editar-id').value;
-        console.log('📋 Lead ID desde botón:', leadId);
-        
-        const formEditar = document.getElementById('formEditarLead');
-        if (formEditar) {
-            const evento = new Event('submit', { bubbles: true, cancelable: true });
-            formEditar.dispatchEvent(evento);
+        if (response && response.success) {
+            alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+            document.getElementById('modalEditarLead').style.display = 'none';
+            cargarLeadsDesdeAPI();
+        } else {
+            alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }
-    }
+        
+        delete window[callbackName];
+    };
+    
+    const params = new URLSearchParams({
+        action: 'updateLead',
+        callback: callbackName,
+        'ID_Lead': datosLead.id,
+        'Nombre_Cliente': datosLead.nombre,
+        'Email': datosLead.email || '',
+        'Telefono': datosLead.telefono,
+        'Tipo_Credito': datosLead.plan,
+        'Monto_Solicitado': datosLead.monto,
+        'Estado': datosLead.estado,
+        'Asesor_ID': usuarioActual.usuario
+    });
+    
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    document.head.appendChild(script);
+    
+    console.log('🚀 JSONP ENVIADO DIRECTAMENTE');
+}
         console.log('🚀 Dashboard Asesor cargado');
     </script>
 </body>

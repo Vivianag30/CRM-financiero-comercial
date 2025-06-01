@@ -817,152 +817,74 @@
         }
 
         
-// FUNCIÓN REAL PARA CARGAR LEADS - SIN ERRORES
+// FUNCIÓN REAL PARA CARGAR LEADS - MÉTODO QUE SÍ FUNCIONA
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Cargando leads REALES desde Google Sheets...');
             
-            const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}`;
+            const fullUrl = `${API_URL}?action=getLeads&asesorId=${usuarioActual.usuario}&empresaId=EMP001`;
             console.log('🔗 URL completa:', fullUrl);
             
-            // Abrir popup
-            let popup = null;
-            let checkResponse = null;
-            
-            try {
-                popup = window.open(fullUrl, 'loadLeads', 'width=800,height=600');
-            } catch (error) {
-                console.log('❌ Error abriendo popup:', error);
-                leadsData = [];
-                mostrarLeads();
-                actualizarMetricas();
-                return;
-            }
+            // Crear popup que va a recibir los datos
+            const popup = window.open(fullUrl, 'loadLeads', 'width=600,height=400,scrollbars=yes');
             
             if (!popup) {
-                console.log('❌ No se pudo abrir popup');
+                console.log('❌ No se pudo abrir popup - verifica que no esté bloqueado');
                 leadsData = [];
                 mostrarLeads();
                 actualizarMetricas();
                 return;
             }
             
-            console.log('📡 Popup abierto, esperando respuesta...');
+            console.log('📡 Popup abierto, esperando datos...');
             
-            // Intentar leer la respuesta del popup
-            checkResponse = setInterval(() => {
-                try {
-                    // CORRECCIÓN: Verificar que popup existe y tiene la propiedad closed
-                    if (!popup) {
-                        console.log('❌ Popup es null');
-                        clearInterval(checkResponse);
-                        leadsData = [];
-                        mostrarLeads();
-                        actualizarMetricas();
-                        return;
-                    }
+            // Escuchar mensaje del popup con los datos
+            const messageListener = function(event) {
+                console.log('📡 Mensaje recibido:', event.data);
+                
+                if (event.data && event.data.type === 'LEADS_DATA') {
+                    console.log('✅ Datos de leads recibidos:', event.data.data);
                     
-                    // CORRECCIÓN: Usar try-catch para verificar closed
-                    let popupClosed = false;
-                    try {
-                        popupClosed = popup.closed;
-                    } catch (e) {
-                        popupClosed = true; // Si no se puede acceder, asumir que está cerrado
-                    }
+                    // Filtrar leads para el asesor actual
+                    const todosLosLeads = event.data.data || [];
+                    leadsData = todosLosLeads.filter(lead => 
+                        lead.asesor === usuarioActual.usuario || 
+                        lead.Asesor_ID === usuarioActual.usuario
+                    );
                     
-                    if (popupClosed) {
-                        console.log('❌ Popup cerrado antes de obtener respuesta');
-                        clearInterval(checkResponse);
-                        leadsData = [];
-                        mostrarLeads();
-                        actualizarMetricas();
-                        return;
-                    }
+                    console.log(`📊 Leads filtrados para ${usuarioActual.usuario}:`, leadsData.length);
                     
-                    // Intentar leer el contenido del popup
-                    let popupDoc = null;
-                    let popupBody = null;
+                    // Mostrar información de cada lead real
+                    leadsData.forEach((lead, index) => {
+                        console.log(`📋 Lead REAL ${index + 1}: ${lead.nombre} - ${lead.estado} - $${lead.monto}`);
+                    });
                     
-                    try {
-                        popupDoc = popup.document;
-                        popupBody = popupDoc ? popupDoc.body : null;
-                    } catch (accessError) {
-                        // Normal - no se puede acceder al popup aún por CORS
-                        return;
-                    }
+                    mostrarLeads();
+                    actualizarMetricas();
                     
-                    if (popupBody && popupBody.innerText) {
-                        const responseText = popupBody.innerText.trim();
-                        console.log('📡 Respuesta raw del popup:', responseText);
-                        
-                        // Verificar si es JSON válido
-                        if (responseText.startsWith('{') || responseText.startsWith('[')) {
-                            try {
-                                const response = JSON.parse(responseText);
-                                console.log('📡 JSON parseado:', response);
-                                
-                                if (response.success && response.data) {
-                                    leadsData = response.data;
-                                    console.log('✅ Leads REALES cargados:', leadsData.length);
-                                } else {
-                                    console.log('⚠️ Respuesta sin datos:', response);
-                                    leadsData = [];
-                                }
-                                
-                                mostrarLeads();
-                                actualizarMetricas();
-                                
-                                // CORRECCIÓN: Cerrar popup de forma segura
-                                try {
-                                    if (popup && !popup.closed) {
-                                        popup.close();
-                                    }
-                                } catch (e) {
-                                    console.log('Info: Error cerrando popup (normal)');
-                                }
-                                
-                                clearInterval(checkResponse);
-                                
-                            } catch (jsonError) {
-                                console.log('❌ Error parsing JSON:', jsonError);
-                            }
-                        }
-                    }
-                    
-                } catch (generalError) {
-                    console.log('Info: Error general accediendo popup (normal):', generalError.message);
+                    // Limpiar listener
+                    window.removeEventListener('message', messageListener);
                 }
-            }, 1000);
+            };
+            
+            // Agregar listener para recibir datos
+            window.addEventListener('message', messageListener);
             
             // Timeout de seguridad
             setTimeout(() => {
-                try {
-                    if (popup) {
-                        let popupClosed = false;
-                        try {
-                            popupClosed = popup.closed;
-                        } catch (e) {
-                            popupClosed = true;
-                        }
-                        
-                        if (!popupClosed) {
-                            console.log('⏰ Timeout - cerrando popup');
-                            popup.close();
-                        }
-                    }
-                } catch (e) {
-                    console.log('Info: Error en timeout (normal)');
+                if (popup && !popup.closed) {
+                    console.log('⏰ Cerrando popup por timeout');
+                    popup.close();
                 }
                 
-                if (checkResponse) {
-                    clearInterval(checkResponse);
-                }
+                // Si no se recibieron datos, remover listener
+                window.removeEventListener('message', messageListener);
                 
                 if (leadsData.length === 0) {
-                    console.log('⚠️ No se pudieron cargar leads del Google Sheets');
+                    console.log('⚠️ No se recibieron datos en el tiempo esperado');
                     mostrarLeads();
                     actualizarMetricas();
                 }
-            }, 10000);
+            }, 15000);
         }
         
   // Función para recargar leads manualmente

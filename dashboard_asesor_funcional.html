@@ -817,7 +817,7 @@
         }
 
         
-// FUNCIÓN REAL PARA CARGAR LEADS - POPUP REAL METHOD (CORREGIDA)
+// FUNCIÓN REAL PARA CARGAR LEADS - SIN ERRORES
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Cargando leads REALES desde Google Sheets...');
             
@@ -826,26 +826,50 @@
             
             // Abrir popup
             let popup = null;
+            let checkResponse = null;
+            
             try {
                 popup = window.open(fullUrl, 'loadLeads', 'width=800,height=600');
             } catch (error) {
                 console.log('❌ Error abriendo popup:', error);
+                leadsData = [];
                 mostrarLeads();
+                actualizarMetricas();
                 return;
             }
             
             if (!popup) {
                 console.log('❌ No se pudo abrir popup');
+                leadsData = [];
                 mostrarLeads();
+                actualizarMetricas();
                 return;
             }
             
             console.log('📡 Popup abierto, esperando respuesta...');
             
             // Intentar leer la respuesta del popup
-            const checkResponse = setInterval(() => {
+            checkResponse = setInterval(() => {
                 try {
-                    if (!popup || popup.closed) {
+                    // CORRECCIÓN: Verificar que popup existe y tiene la propiedad closed
+                    if (!popup) {
+                        console.log('❌ Popup es null');
+                        clearInterval(checkResponse);
+                        leadsData = [];
+                        mostrarLeads();
+                        actualizarMetricas();
+                        return;
+                    }
+                    
+                    // CORRECCIÓN: Usar try-catch para verificar closed
+                    let popupClosed = false;
+                    try {
+                        popupClosed = popup.closed;
+                    } catch (e) {
+                        popupClosed = true; // Si no se puede acceder, asumir que está cerrado
+                    }
+                    
+                    if (popupClosed) {
                         console.log('❌ Popup cerrado antes de obtener respuesta');
                         clearInterval(checkResponse);
                         leadsData = [];
@@ -855,8 +879,16 @@
                     }
                     
                     // Intentar leer el contenido del popup
-                    const popupDoc = popup.document;
-                    const popupBody = popupDoc.body;
+                    let popupDoc = null;
+                    let popupBody = null;
+                    
+                    try {
+                        popupDoc = popup.document;
+                        popupBody = popupDoc ? popupDoc.body : null;
+                    } catch (accessError) {
+                        // Normal - no se puede acceder al popup aún por CORS
+                        return;
+                    }
                     
                     if (popupBody && popupBody.innerText) {
                         const responseText = popupBody.innerText.trim();
@@ -879,9 +911,15 @@
                                 mostrarLeads();
                                 actualizarMetricas();
                                 
-                                if (popup && !popup.closed) {
-                                    popup.close();
+                                // CORRECCIÓN: Cerrar popup de forma segura
+                                try {
+                                    if (popup && !popup.closed) {
+                                        popup.close();
+                                    }
+                                } catch (e) {
+                                    console.log('Info: Error cerrando popup (normal)');
                                 }
+                                
                                 clearInterval(checkResponse);
                                 
                             } catch (jsonError) {
@@ -890,18 +928,34 @@
                         }
                     }
                     
-                } catch (accessError) {
-                    // Normal - no se puede acceder al popup aún
+                } catch (generalError) {
+                    console.log('Info: Error general accediendo popup (normal):', generalError.message);
                 }
             }, 1000);
             
             // Timeout de seguridad
             setTimeout(() => {
-                if (popup && !popup.closed) {
-                    console.log('⏰ Timeout - cerrando popup');
-                    popup.close();
+                try {
+                    if (popup) {
+                        let popupClosed = false;
+                        try {
+                            popupClosed = popup.closed;
+                        } catch (e) {
+                            popupClosed = true;
+                        }
+                        
+                        if (!popupClosed) {
+                            console.log('⏰ Timeout - cerrando popup');
+                            popup.close();
+                        }
+                    }
+                } catch (e) {
+                    console.log('Info: Error en timeout (normal)');
                 }
-                clearInterval(checkResponse);
+                
+                if (checkResponse) {
+                    clearInterval(checkResponse);
+                }
                 
                 if (leadsData.length === 0) {
                     console.log('⚠️ No se pudieron cargar leads del Google Sheets');

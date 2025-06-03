@@ -1466,7 +1466,7 @@ function guardarLeadEnGoogleSheets(datosLead) {
             
             // USAR LA MISMA FUNCIÓN QUE EL BOTÓN "ACTUALIZAR"
             console.log('⚡ Usando recargarLeads() como el botón...');
-            recargarLeads(); // ← ESTA ES LA CLAVE
+            cargarLeadsDesdeAPI();
             console.log('✅ Nuevo lead - Refresh completado con recargarLeads()');
             
         } else {

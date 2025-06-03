@@ -1450,7 +1450,9 @@ function mostrarLeads() {
             }
         }
 
-         // FUNCIÓN REAL PARA GUARDAR LEADS - CON AUTO-REFRESH
+// ============================================
+// FUNCIÓN GUARDAR LEAD - OPTIMIZADA CON DELAY
+// ============================================
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     
@@ -1462,10 +1464,13 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // AUTO-REFRESH INMEDIATO
-            console.log('🔄 Recargando leads y métricas...');
-            cargarLeadsDesdeAPI();
-            actualizarMetricas();
+            // REFRESH CON DELAY MÍNIMO PARA ASEGURAR SINCRONIZACIÓN
+            console.log('🔄 Iniciando refresh optimizado...');
+            setTimeout(() => {
+                cargarLeadsDesdeAPI();
+                actualizarMetricas();
+                console.log('✅ Nuevo lead - Refresh completado');
+            }, 800); // Delay suficiente para que Google Sheets se actualice
             
         } else {
             alert(`❌ Error guardando lead: ${response.message}`);
@@ -1636,6 +1641,9 @@ function inicializarDashboard() {
 */
         });
         
+// ============================================
+// FUNCIÓN EDITAR LEAD - ULTRA RÁPIDA
+// ============================================
 function procesarEdicionLead() {
     console.log('🔥 BOTÓN CLICKEADO DIRECTAMENTE');
     
@@ -1668,13 +1676,11 @@ function procesarEdicionLead() {
             alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             document.getElementById('modalEditarLead').style.display = 'none';
             
-            // REFRESH OPTIMIZADO - MÁS RÁPIDO
-            console.log('⚡ Refresh rápido iniciando...');
-            setTimeout(() => {
-                cargarLeadsDesdeAPI();
-                actualizarMetricas(); // Cambiado de actualizarContadores a actualizarMetricas
-                console.log('✅ Refresh completado');
-            }, 300); // Súper rápido: 300ms
+            // REFRESH ULTRA RÁPIDO - INMEDIATO
+            console.log('⚡ Refresh ultra rápido iniciando...');
+            cargarLeadsDesdeAPI();
+            actualizarMetricas();
+            console.log('✅ Edición - Refresh completado inmediatamente');
             
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);

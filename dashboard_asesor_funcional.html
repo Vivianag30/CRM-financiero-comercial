@@ -1388,7 +1388,69 @@ function mostrarLeads() {
                 form.reset();
             }
         }
-// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT
+
+       // FUNCIÓN REAL PARA ACTUALIZAR LEADS
+        function actualizarLeadEnGoogleSheets(datosLead) {
+            console.log('🔄 Actualizando lead REAL en Google Sheets...');
+            
+            const callbackName = 'updateLead_' + Date.now();
+            window[callbackName] = function(response) {
+                console.log('📡 Respuesta actualizar:', response);
+                
+                if (response.success) {
+                    alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+                    cerrarModalEditar();
+                    // Recargar leads automáticamente
+                    cargarLeadsDesdeAPI();
+                } else {
+                    alert(`❌ Error actualizando lead: ${response.message}`);
+                }
+                
+                delete window[callbackName];
+            };
+            
+            const params = new URLSearchParams({
+                action: 'updateLead',
+                callback: callbackName,
+                'ID_Lead': datosLead.id,
+                'Nombre_Cliente': datosLead.nombre,
+                'Email': datosLead.email || '',
+                'Telefono': datosLead.telefono,
+                'Tipo_Credito': datosLead.plan,
+                'Monto_Solicitado': datosLead.monto,
+                'Estado': datosLead.estado,
+                'Asesor_ID': usuarioActual.usuario,
+                'Fecha de la cita': datosLead.fechaCita || '',
+                'Hora de la cita': datosLead.horaCita || '',
+                'Lugar de la cita': datosLead.lugarCita || '',
+                'Observaciones': datosLead.observaciones || ''
+            });
+            
+            const script = document.createElement('script');
+            script.src = `${API_URL}?${params.toString()}`;
+            document.head.appendChild(script);
+            
+            return true;
+        }
+
+        // Función para crear nuevo lead - CONECTA A GOOGLE SHEETS
+        function crearNuevoLead() {
+            console.log('📝 Abriendo modal para nuevo lead...');
+            document.getElementById('modalNuevoLead').style.display = 'block';
+        }
+
+        // Función para cerrar modal
+        function cerrarModal() {
+            document.getElementById('modalNuevoLead').style.display = 'none';
+            
+            // Limpiar formulario
+            const form = document.getElementById('formNuevoLead');
+            if (form) {
+                form.reset();
+            }
+        }
+
+// FUNCIÓN GUARDAR LEAD - USANDO MISMA FUNCIÓN QUE EL BOTÓN
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
@@ -1402,12 +1464,10 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH DESPUÉS DEL ALERT (CUANDO USUARIO HACE CLIC EN ACEPTAR)
-            setTimeout(() => {
-                console.log('⚡ Refresh después del alert - iniciando...');
-                cargarLeadsDesdeAPI();
-                console.log('✅ Nuevo lead - Refresh completado después del alert');
-            }, 100);
+            // USAR LA MISMA FUNCIÓN QUE EL BOTÓN "ACTUALIZAR"
+            console.log('⚡ Usando recargarLeads() como el botón...');
+            recargarLeads(); // ← ESTA ES LA CLAVE
+            console.log('✅ Nuevo lead - Refresh completado con recargarLeads()');
             
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);

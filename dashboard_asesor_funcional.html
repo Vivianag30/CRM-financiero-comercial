@@ -1450,8 +1450,7 @@ function mostrarLeads() {
             }
         }
 
-¡PERFECTO! 🎯 Aquí tienes la función completa arreglada:
-javascript// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT Y SIN DUPLICACIÓN
+// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT Y SIN DUPLICACIÓN
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
@@ -1460,7 +1459,7 @@ function guardarLeadEnGoogleSheets(datosLead) {
     const saveButton = document.querySelector('#formNuevoLead button[type="submit"]');
     if (saveButton) {
         saveButton.disabled = true;
-        saveButton.textContent = '⏳ Guardando...';
+        saveButton.textContent = 'Guardando...';
     }
     
     // ENVÍO JSONP DIRECTO (MISMO PATRÓN QUE EDITAR)
@@ -1478,12 +1477,12 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH DESPUÉS DEL ALERT CON DELAY MAYOR PARA GOOGLE SHEETS
+            // REFRESH DESPUÉS DEL ALERT CON DELAY MAYOR
             setTimeout(() => {
                 console.log('⚡ Refresh después del alert - iniciando...');
                 recargarLeads();
                 console.log('✅ Nuevo lead - Refresh completado después del alert');
-            }, 3000); // 3 SEGUNDOS PARA QUE GOOGLE SHEETS TERMINE DE PROCESAR
+            }, 3000);
             
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);

@@ -265,88 +265,102 @@
             }
         }
 
-        // Función principal de login
-        function realizarLogin() {
-            console.log('🚀 Botón clickeado - Iniciando login...');
-            
-            limpiarMensajes();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            
-            console.log('👤 Usuario:', username);
-            console.log('🔑 Password:', password ? 'Introducido' : 'Vacío');
-            
-            if (!username || !password) {
-                mostrarMensaje('Por favor complete todos los campos', 'error');
-                return;
-            }
-            
-            mostrarLoading(true);
-            
-            // Simular validación
-            setTimeout(() => {
-                const usuario = usuarios[username];
-                
-                if (!usuario) {
-                    mostrarMensaje('Usuario no encontrado', 'error');
-                    mostrarLoading(false);
-                    return;
-                }
-                
-                if (usuario.password !== password) {
-                    mostrarMensaje('Contraseña incorrecta', 'error');
-                    mostrarLoading(false);
-                    return;
-                }
-                
-                if (usuario.estado !== 'ACTIVO') {
-                    mostrarMensaje('Usuario inactivo', 'error');
-                    mostrarLoading(false);
-                    return;
-                }
-                
-                // Login exitoso
-                console.log('✅ Login exitoso para:', usuario.nombre);
-                mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
-                
-                // Guardar sesión
-                try {
-                    const sesion = {
-                        usuario: username,
-                        datos: usuario,
-                        timestamp: new Date().getTime()
-                    };
-                    sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
-                    console.log('💾 Sesión guardada');
-                } catch (e) {
-                    console.log('⚠️ SessionStorage no disponible');
-                }
-                
-                // Redirigir según tipo de usuario
-                setTimeout(() => {
-                    if (usuario.tipo === 'GERENTE') {
-                        alert(`¡Bienvenida ${usuario.nombre}!\n\n🎯 Tipo: ${usuario.tipo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Dashboard Gerencial próximamente...`);
-                    } else {
-                        alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Dashboard Asesor próximamente...`);
-                    }
-                    
-                    // Reset para probar otros usuarios
-                    document.getElementById('username').value = '';
-                    document.getElementById('password').value = '';
-                    mostrarLoading(false);
-                    limpiarMensajes();
-                    
-                }, 2000);
-                
-            }, 1000);
+    // Función principal de login
+function realizarLogin() {
+    console.log('🚀 Botón clickeado - Iniciando login...');
+    
+    limpiarMensajes();
+    
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    
+    console.log('👤 Usuario:', username);
+    console.log('🔑 Password:', password ? 'Introducido' : 'Vacío');
+    
+    if (!username || !password) {
+        mostrarMensaje('Por favor complete todos los campos', 'error');
+        return;
+    }
+    
+    mostrarLoading(true);
+    
+    // Simular validación
+    setTimeout(() => {
+        const usuario = usuarios[username];
+        
+        if (!usuario) {
+            mostrarMensaje('Usuario no encontrado', 'error');
+            mostrarLoading(false);
+            return;
         }
-
-        // Event listener para Enter
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                realizarLogin();
+        
+        if (usuario.password !== password) {
+            mostrarMensaje('Contraseña incorrecta', 'error');
+            mostrarLoading(false);
+            return;
+        }
+        
+        if (usuario.estado !== 'ACTIVO') {
+            mostrarMensaje('Usuario inactivo', 'error');
+            mostrarLoading(false);
+            return;
+        }
+        
+        // Login exitoso
+        console.log('✅ Login exitoso para:', usuario.nombre);
+        mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+        
+        // Guardar sesión
+        try {
+            const sesion = {
+                usuario: username,
+                datos: usuario,
+                timestamp: new Date().getTime()
+            };
+            sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
+            console.log('💾 Sesión guardada');
+        } catch (e) {
+            console.log('⚠️ SessionStorage no disponible');
+        }
+        
+        // Redirigir según tipo de usuario
+        setTimeout(() => {
+            if (usuario.tipo === 'GERENTE') {
+                alert(`¡Bienvenida ${usuario.nombre}!\n\n🎯 Tipo: ${usuario.tipo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard Gerencial...`);
+            } else {
+                alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard de Asesor...`);
             }
+            
+            // Auto-redirect con countdown visual
+            mostrarLoading(false);
+            mostrarMensaje('¡Redirigiendo en 3 segundos...!', 'success');
+            
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    mostrarMensaje(`¡Redirigiendo en ${countdown} segundos...!`, 'success');
+                } else {
+                    clearInterval(countdownInterval);
+                    // Redirección automática real
+                    if (usuario.tipo === 'GERENTE') {
+                        window.location.href = 'dashboard-gerencial.html';
+                    } else {
+                        window.location.href = 'dashboard_asesor_funcional.html';
+                    }
+                }
+            }, 1000);
+            
+        }, 2000);
+        
+    }, 1000);
+}
+
+// Event listener para Enter
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        realizarLogin();
+    }
         });
 
         console.log('🚀 Login CRM Financiero cargado correctamente');

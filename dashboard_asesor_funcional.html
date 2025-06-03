@@ -1450,48 +1450,42 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT Y SIN DUPLICACIÓN
+// FUNCIÓN GUARDAR LEAD - CON LOGS DE DEBUG EXTREMO
 function guardarLeadEnGoogleSheets(datosLead) {
-    console.log('💾 Guardando lead REAL en Google Sheets...');
-    console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
+    console.log('🚀 INICIO - guardarLeadEnGoogleSheets');
+    console.log('📋 Datos recibidos:', datosLead);
     
-    // PREVENIR DOBLE ENVÍO - DESHABILITAR BOTÓN
-    const saveButton = document.querySelector('#formNuevoLead button[type="submit"]');
-    if (saveButton) {
-        saveButton.disabled = true;
-        saveButton.textContent = 'Guardando...';
-    }
-    
-    // ENVÍO JSONP DIRECTO (MISMO PATRÓN QUE EDITAR)
+    // ENVÍO JSONP DIRECTO
     const callbackName = 'saveLead_' + Date.now();
+    console.log('📡 Callback creado:', callbackName);
+    
     window[callbackName] = function(response) {
-        console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
-        
-        // RESTAURAR BOTÓN SIEMPRE
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.textContent = '💾 Guardar Lead';
-        }
+        console.log('🎯 CALLBACK EJECUTADO - response:', response);
         
         if (response && response.success) {
+            console.log('✅ SUCCESS - Mostrando alert...');
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+            console.log('🚪 Cerrando modal...');
             cerrarModal();
             
-            // REFRESH DESPUÉS DEL ALERT CON DELAY MAYOR
+            console.log('⏰ Iniciando setTimeout de 3 segundos...');
             setTimeout(() => {
-                console.log('⚡ Refresh después del alert - iniciando...');
+                console.log('🔥 TIMEOUT EJECUTADO - Iniciando refresh...');
+                console.log('📊 Estado antes del refresh - Total leads:', leadsData.length);
                 recargarLeads();
-                console.log('✅ Nuevo lead - Refresh completado después del alert');
+                console.log('🎉 REFRESH COMPLETADO');
             }, 3000);
             
         } else {
+            console.log('❌ ERROR en response:', response);
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }
         
         delete window[callbackName];
+        console.log('🧹 Callback limpiado');
     };
     
-    // CONSTRUIR PARÁMETROS (MISMO FORMATO QUE EDITAR)
+    // Resto del código igual...
     const params = new URLSearchParams({
         action: 'addLead',
         callback: callbackName,
@@ -1510,13 +1504,11 @@ function guardarLeadEnGoogleSheets(datosLead) {
         'Empresa_ID': 'EMP001'
     });
     
-    // MISMO MÉTODO DE ENVÍO QUE EDITAR
     const script = document.createElement('script');
     script.src = `${API_URL}?${params.toString()}`;
     document.head.appendChild(script);
     
-    console.log('🚀 JSONP ENVIADO DIRECTAMENTE');
-    
+    console.log('📤 Script enviado a:', API_URL);
     return true;
 }
         // Función auxiliar para calcular probabilidad inicial basada en estado

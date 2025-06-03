@@ -1583,78 +1583,68 @@ function inicializarDashboard() {
     }
 }
         // Event listener para formulario nuevo lead
-        document.addEventListener('DOMContentLoaded', function() {
-            // Event listener para el formulario
-            const form = document.getElementById('formNuevoLead');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    console.log('📝 Procesando nuevo lead...');
-                    
-                    // Obtener datos del formulario
-                    const datosLead = {
-                        nombre: document.getElementById('nuevo-nombre').value.trim(),
-                        telefono: document.getElementById('nuevo-telefono').value.trim(),
-                        email: document.getElementById('nuevo-email').value.trim(),
-                        monto: document.getElementById('nuevo-monto').value,
-                        estado: document.getElementById('nuevo-estado').value,
-                        plan: document.getElementById('nuevo-plan').value,
-                        fechaCita: document.getElementById('nuevo-fecha-cita').value,
-                        horaCita: document.getElementById('nuevo-hora-cita').value,
-                        lugarCita: document.getElementById('nuevo-lugar-cita').value,
-                        observaciones: document.getElementById('nuevo-observaciones').value.trim()
-                    };
-                    
-                    console.log('📋 Datos recopilados:', datosLead);
-                    
-                    // Validar campos requeridos
-                    if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
-                        alert('⚠️ Por favor complete todos los campos requeridos');
-                        return;
-                    }
-                    
-                    // Validar monto
-                    if (parseInt(datosLead.monto) < 1000) {
-                        alert('⚠️ El monto mínimo es $1,000');
-                        return;
-                    }
-                    
-                    console.log('✅ Datos validados, guardando lead...');
-                    
-                    // Guardar en Google Sheets
-                    const exito = guardarLeadEnGoogleSheets(datosLead);
-                    
-                    if (exito) {
-                        alert(`✅ ¡Lead creado exitosamente!\n\n👤 Cliente: ${datosLead.nombre}\n💰 Monto: ${parseInt(datosLead.monto).toLocaleString()}\n📊 Estado: ${datosLead.estado}\n💳 Plan: ${datosLead.plan}\n\n🚀 ¡El lead se ha agregado a tu Google Sheets!`);
-                        
-                        // Cerrar modal
-                        cerrarModal();
-                        
-                        // Mostrar mensaje de confirmación
-                        console.log('🎉 Lead creado exitosamente');
-                    }
-                });
-            }
-
-            // Inicializar dashboard
-            inicializarDashboard();
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener para el formulario
+    const form = document.getElementById('formNuevoLead');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-        // COMENTADO: Cerrar modal al hacer clic fuera
-        /*
-        window.onclick = function(event) {
-            const modalNuevo = document.getElementById('modalNuevoLead');
-            const modalEditar = document.getElementById('modalEditarLead');
-    
-            if (event.target === modalNuevo) {
-            cerrarModal();
+            console.log('📝 Procesando nuevo lead...');
+            
+            // Obtener datos del formulario
+            const datosLead = {
+                nombre: document.getElementById('nuevo-nombre').value.trim(),
+                telefono: document.getElementById('nuevo-telefono').value.trim(),
+                email: document.getElementById('nuevo-email').value.trim(),
+                monto: document.getElementById('nuevo-monto').value,
+                estado: document.getElementById('nuevo-estado').value,
+                plan: document.getElementById('nuevo-plan').value,
+                fechaCita: document.getElementById('nuevo-fecha-cita').value,
+                horaCita: document.getElementById('nuevo-hora-cita').value,
+                lugarCita: document.getElementById('nuevo-lugar-cita').value,
+                observaciones: document.getElementById('nuevo-observaciones').value.trim()
+            };
+            
+            console.log('📋 Datos recopilados:', datosLead);
+            
+            // Validar campos requeridos
+            if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
+                alert('⚠️ Por favor complete todos los campos requeridos');
+                return;
             }
-            if (event.target === modalEditar) {
-                cerrarModalEditar();
+            
+            // Validar monto
+            if (parseInt(datosLead.monto) < 1000) {
+                alert('⚠️ El monto mínimo es $1,000');
+                return;
             }
-        }
-*/
+            
+            console.log('✅ Datos validados, guardando lead...');
+            
+            // Guardar en Google Sheets - LA FUNCIÓN SE ENCARGA DE TODO
+            guardarLeadEnGoogleSheets(datosLead);
         });
+    }
+    
+    // Inicializar dashboard
+    inicializarDashboard();
+    
+    // COMENTADO: Cerrar modal al hacer clic fuera
+    /*
+    window.onclick = function(event) {
+        const modalNuevo = document.getElementById('modalNuevoLead');
+        const modalEditar = document.getElementById('modalEditarLead');
+
+        if (event.target === modalNuevo) {
+            cerrarModal();
+        }
+        if (event.target === modalEditar) {
+            cerrarModalEditar();
+        }
+    }
+    */
+});
         
 // ============================================
 // FUNCIÓN EDITAR LEAD - ULTRA RÁPIDA

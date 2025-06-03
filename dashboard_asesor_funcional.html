@@ -778,7 +778,7 @@
             
     <script>
         // URL de tu Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz9QsLrJpb6yrrrnbEy3cyNdF6L0SvhvY8gh0Os0J-2CRZN2sVcu6P8-lnk0-JO-KWA/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzbycT1s5nlb5p0xgDswc-7vyJqW-7HcbJ407iqvO_dZ9DfoQKppWPe8oOg4VzgA8SR/exec';
         
         // Variables globales
         let usuarioActual = null;
@@ -1528,61 +1528,43 @@ function mostrarLeads() {
             }
         }
 
-        // Función para inicializar dashboard
-        function inicializarDashboard() {
-            console.log('🚀 Iniciando Dashboard Asesor...');
-            
-            const sesion = obtenerSesion();
-            
-            if (sesion && sesion.usuario && sesion.datos) {
-                usuarioActual = sesion;
-                
-                // Verificar que NO sea gerente
-                if (sesion.datos.tipo === 'GERENTE') {
-                    alert('Esta sección es para asesores. Seria redirigido al dashboard gerencial...');
-                    // Comentado para evitar error 404: window.location.href = 'dashboard-gerencial.html';
-                    return;
-                }
-                
-                console.log(`👤 Asesor autenticado: ${sesion.usuario}`);
-                
-                // Actualizar header
-                document.getElementById('welcome-message').textContent = `¡Bienvenido, ${sesion.datos.nombre.split(' ')[0]}!`;
-                document.getElementById('user-name').textContent = sesion.datos.nombre;
-                document.getElementById('user-role').textContent = `${sesion.datos.cargo} | ${sesion.datos.email}`;
-                
-                // Cargar datos
-                cargarLeadsDesdeAPI();
-                
-            } else {
-                console.log('❌ No hay sesión válida');
-                console.log('🔄 Creando sesión demo para José Luis...');
-                
-                // Crear sesión demo para José Luis (como estaba logueado)
-                const sesionDemo = {
-                    usuario: 'jose-luis',
-                    datos: {
-                        nombre: 'José Luis Martínez',
-                        cargo: 'Senior',
-                        email: 'jlmartinez@empresa.com',
-                        telefono: '0998765432',
-                        tipo: 'ASESOR'
-                    },
-                    timestamp: new Date().getTime()
-                };
-                
-                usuarioActual = sesionDemo;
-                
-                // Actualizar header
-                document.getElementById('welcome-message').textContent = `¡Bienvenido, José Luis!`;
-                document.getElementById('user-name').textContent = 'José Luis Martínez';
-                document.getElementById('user-role').textContent = 'Senior | jlmartinez@empresa.com';
-                
-                // Cargar datos
-                cargarLeadsDesdeAPI();
-            }
+        // ============================================
+// CAMBIO 1: FUNCIÓN inicializarDashboard CORREGIDA
+// ============================================
+function inicializarDashboard() {
+    console.log('🚀 Iniciando Dashboard Asesor...');
+    
+    const sesion = obtenerSesion();
+    
+    if (sesion && sesion.usuario && sesion.datos) {
+        usuarioActual = sesion;
+        
+        // Verificar que NO sea gerente
+        if (sesion.datos.tipo === 'GERENTE') {
+            alert('Esta sección es para asesores. Seria redirigido al dashboard gerencial...');
+            // Comentado para evitar error 404: window.location.href = 'dashboard-gerencial.html';
+            return;
         }
-
+        
+        console.log(`👤 Asesor autenticado: ${sesion.usuario}`);
+        
+        // Actualizar header
+        document.getElementById('welcome-message').textContent = `¡Bienvenido, ${sesion.datos.nombre.split(' ')[0]}!`;
+        document.getElementById('user-name').textContent = sesion.datos.nombre;
+        document.getElementById('user-role').textContent = `${sesion.datos.cargo} | ${sesion.datos.email}`;
+        
+        // Cargar datos
+        cargarLeadsDesdeAPI();
+        
+    } else {
+        console.log('❌ No hay sesión válida');
+        console.log('🔄 Redirigiendo al login...');
+        
+        alert('Sesión expirada. Será redirigido al login.');
+        window.location.href = 'index.html';
+        return;
+    }
+}
         // Event listener para formulario nuevo lead
         document.addEventListener('DOMContentLoaded', function() {
             // Event listener para el formulario
@@ -1641,18 +1623,20 @@ function mostrarLeads() {
             // Inicializar dashboard
             inicializarDashboard();
             
-            // Cerrar modal al hacer clic fuera
-            window.onclick = function(event) {
-                const modalNuevo = document.getElementById('modalNuevoLead');
-                const modalEditar = document.getElementById('modalEditarLead');
-                
-                if (event.target === modalNuevo) {
-                    cerrarModal();
-                }
-                if (event.target === modalEditar) {
-                    cerrarModalEditar();
-                }
+        // COMENTADO: Cerrar modal al hacer clic fuera
+        /*
+        window.onclick = function(event) {
+            const modalNuevo = document.getElementById('modalNuevoLead');
+            const modalEditar = document.getElementById('modalEditarLead');
+    
+            if (event.target === modalNuevo) {
+            cerrarModal();
             }
+            if (event.target === modalEditar) {
+                cerrarModalEditar();
+            }
+        }
+*/
         });
         
 function procesarEdicionLead() {

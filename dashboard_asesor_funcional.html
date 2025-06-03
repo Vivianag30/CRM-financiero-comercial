@@ -1450,9 +1450,7 @@ function mostrarLeads() {
             }
         }
 
-// ============================================
-// FUNCIÓN GUARDAR LEAD - COPIANDO PATRÓN QUE FUNCIONA
-// ============================================
+// FUNCIÓN GUARDAR LEAD - USANDO MISMA FUNCIÓN QUE EL BOTÓN
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
@@ -1466,11 +1464,10 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH ULTRA RÁPIDO - INMEDIATO (IGUAL QUE EDITAR)
-            console.log('⚡ Refresh ultra rápido iniciando...');
-            cargarLeadsDesdeAPI();
-            actualizarMetricas();
-            console.log('✅ Nuevo lead - Refresh completado inmediatamente');
+            // USAR LA MISMA FUNCIÓN QUE EL BOTÓN "ACTUALIZAR"
+            console.log('⚡ Usando recargarLeads() como el botón...');
+            recargarLeads(); // ← ESTA ES LA CLAVE
+            console.log('✅ Nuevo lead - Refresh completado con recargarLeads()');
             
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);

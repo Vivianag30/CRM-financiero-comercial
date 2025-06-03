@@ -184,13 +184,14 @@
             <div onclick="completarUsuario('jose-luis', 'password123')">• jose-luis / password123 (Senior)</div>
             <div onclick="completarUsuario('ana-rodriguez', 'password123')">• ana-rodriguez / password123 (Asesor)</div>
             <div onclick="completarUsuario('carlos-mendez', 'password123')">• carlos-mendez / password123 (Junior)</div>
-            <div><strong>Gerente:</strong></div>
-            <div onclick="completarUsuario('maria-gonzalez', 'admin123')">• maria-gonzalez / admin123 (Gerencial)</div>
+            <div><strong>Supervisión:</strong></div>
+            <div onclick="completarUsuario('supervisor', 'admin123')">• supervisor / admin123 (Supervisor General)</div>
+            <div onclick="completarUsuario('maria-gonzalez', 'admin123')">• maria-gonzalez / admin123 (Gerente)</div>
         </div>
     </div>
 
     <script>
-        // Base de datos de usuarios
+        // Base de datos de usuarios - AGREGADO SUPERVISOR
         const usuarios = {
             'jose-luis': {
                 password: 'password123',
@@ -217,6 +218,15 @@
                 email: 'cmendez@empresa.com',
                 telefono: '0976543210',
                 tipo: 'ASESOR',
+                estado: 'ACTIVO'
+            },
+            'supervisor': {
+                password: 'admin123',
+                nombre: 'Supervisor General',
+                cargo: 'Supervisor',
+                email: 'supervisor@empresa.com',
+                telefono: '0999111222',
+                tipo: 'GERENTE',
                 estado: 'ACTIVO'
             },
             'maria-gonzalez': {
@@ -265,102 +275,91 @@
             }
         }
 
-    // Función principal de login
-function realizarLogin() {
-    console.log('🚀 Botón clickeado - Iniciando login...');
-    
-    limpiarMensajes();
-    
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    
-    console.log('👤 Usuario:', username);
-    console.log('🔑 Password:', password ? 'Introducido' : 'Vacío');
-    
-    if (!username || !password) {
-        mostrarMensaje('Por favor complete todos los campos', 'error');
-        return;
-    }
-    
-    mostrarLoading(true);
-    
-    // Simular validación
-    setTimeout(() => {
-        const usuario = usuarios[username];
-        
-        if (!usuario) {
-            mostrarMensaje('Usuario no encontrado', 'error');
-            mostrarLoading(false);
-            return;
-        }
-        
-        if (usuario.password !== password) {
-            mostrarMensaje('Contraseña incorrecta', 'error');
-            mostrarLoading(false);
-            return;
-        }
-        
-        if (usuario.estado !== 'ACTIVO') {
-            mostrarMensaje('Usuario inactivo', 'error');
-            mostrarLoading(false);
-            return;
-        }
-        
-        // Login exitoso
-        console.log('✅ Login exitoso para:', usuario.nombre);
-        mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
-        
-        // Guardar sesión
-        try {
-            const sesion = {
-                usuario: username,
-                datos: usuario,
-                timestamp: new Date().getTime()
-            };
-            sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
-            console.log('💾 Sesión guardada');
-        } catch (e) {
-            console.log('⚠️ SessionStorage no disponible');
-        }
-        
-        // Redirigir según tipo de usuario
-        setTimeout(() => {
-            if (usuario.tipo === 'GERENTE') {
-                alert(`¡Bienvenida ${usuario.nombre}!\n\n🎯 Tipo: ${usuario.tipo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard Gerencial...`);
-            } else {
-                alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard de Asesor...`);
+        // Función principal de login - CORREGIDA LA URL
+        function realizarLogin() {
+            console.log('🚀 Botón clickeado - Iniciando login...');
+            
+            limpiarMensajes();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            console.log('👤 Usuario:', username);
+            console.log('🔑 Password:', password ? 'Introducido' : 'Vacío');
+            
+            if (!username || !password) {
+                mostrarMensaje('Por favor complete todos los campos', 'error');
+                return;
             }
             
-            // Auto-redirect con countdown visual
-            mostrarLoading(false);
-            mostrarMensaje('¡Redirigiendo en 3 segundos...!', 'success');
+            mostrarLoading(true);
             
-            let countdown = 3;
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    mostrarMensaje(`¡Redirigiendo en ${countdown} segundos...!`, 'success');
-                } else {
-                    clearInterval(countdownInterval);
-                    // Redirección automática real
-                    if (usuario.tipo === 'GERENTE') {
-                        window.location.href = 'dashboard-gerencial.html';
-                    } else {
-                        window.location.href = 'dashboard_asesor_funcional.html';
-                    }
+            // Simular validación
+            setTimeout(() => {
+                const usuario = usuarios[username];
+                
+                if (!usuario) {
+                    mostrarMensaje('Usuario no encontrado', 'error');
+                    mostrarLoading(false);
+                    return;
                 }
+                
+                if (usuario.password !== password) {
+                    mostrarMensaje('Contraseña incorrecta', 'error');
+                    mostrarLoading(false);
+                    return;
+                }
+                
+                if (usuario.estado !== 'ACTIVO') {
+                    mostrarMensaje('Usuario inactivo', 'error');
+                    mostrarLoading(false);
+                    return;
+                }
+                
+                // Login exitoso - SIN SESSIONSTORAGE
+                console.log('✅ Login exitoso para:', usuario.nombre);
+                mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+                
+                // Redirigir según tipo de usuario
+                setTimeout(() => {
+                    if (usuario.tipo === 'GERENTE') {
+                        alert(`¡Bienvenido/a ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Acceso gerencial autorizado!\n🚀 Redirigiendo al Dashboard Gerencial...`);
+                    } else {
+                        alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard de Asesor...`);
+                    }
+                    
+                    // Auto-redirect con countdown visual
+                    mostrarLoading(false);
+                    mostrarMensaje('¡Redirigiendo en 3 segundos...!', 'success');
+                    
+                    let countdown = 3;
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        if (countdown > 0) {
+                            mostrarMensaje(`¡Redirigiendo en ${countdown} segundos...!`, 'success');
+                        } else {
+                            clearInterval(countdownInterval);
+                            // Redirección con parámetros URL en lugar de sessionStorage
+                            if (usuario.tipo === 'GERENTE') {
+                                console.log('🚀 Redirigiendo a dashboard gerencial...');
+                                window.location.href = `dashboard_gerencial.html?user=${encodeURIComponent(usuario.nombre)}&type=GERENTE`;
+                            } else {
+                                console.log('🚀 Redirigiendo a dashboard asesor...');
+                                window.location.href = `dashboard_asesor_funcional.html?user=${encodeURIComponent(usuario.nombre)}&type=ASESOR`;
+                            }
+                        }
+                    }, 1000);
+                    
+                }, 2000);
+                
             }, 1000);
-            
-        }, 2000);
-        
-    }, 1000);
-}
+        }
 
-// Event listener para Enter
-document.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        realizarLogin();
-    }
+        // Event listener para Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                realizarLogin();
+            }
         });
 
         console.log('🚀 Login CRM Financiero cargado correctamente');

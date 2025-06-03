@@ -1450,26 +1450,48 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN GUARDAR LEAD - VERSIÓN SIMPLE Y CORRECTA
+// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT Y SIN DUPLICACIÓN
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
-    console.log('📋 Datos recopilados:', datosLead);
+    console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
     
+    // PREVENIR DOBLE ENVÍO - DESHABILITAR BOTÓN
+    const saveButton = document.querySelector('#formNuevoLead button[type="submit"]');
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = 'Guardando...';
+    }
+    
+    // ENVÍO JSONP DIRECTO (MISMO PATRÓN QUE EDITAR)
     const callbackName = 'saveLead_' + Date.now();
     window[callbackName] = function(response) {
         console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
         
+        // RESTAURAR BOTÓN SIEMPRE
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = '💾 Guardar Lead';
+        }
+        
         if (response && response.success) {
-            alert('✅ ¡Lead creado exitosamente!\n\nCliente: ' + datosLead.nombre);
+            alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
-            recargarLeads();
+            
+            // REFRESH DESPUÉS DEL ALERT CON DELAY MAYOR
+            setTimeout(() => {
+                console.log('⚡ Refresh después del alert - iniciando...');
+                recargarLeads();
+                console.log('✅ Nuevo lead - Refresh completado después del alert');
+            }, 3000);
+            
         } else {
-            alert('❌ Error: ' + (response?.message || 'Error desconocido'));
+            alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }
         
         delete window[callbackName];
     };
     
+    // CONSTRUIR PARÁMETROS (MISMO FORMATO QUE EDITAR)
     const params = new URLSearchParams({
         action: 'addLead',
         callback: callbackName,
@@ -1488,38 +1510,13 @@ function guardarLeadEnGoogleSheets(datosLead) {
         'Empresa_ID': 'EMP001'
     });
     
-    const script = document.createElement('script');
-    script.src = API_URL + '?' + params.toString();
-    document.head.appendChild(script);
-    
-    console.log('🚀 JSONP ENVIADO');
-    return true;
-}
-    
-    // Resto del código igual...
-    const params = new URLSearchParams({
-        action: 'addLead',
-        callback: callbackName,
-        'ID_Lead': 'LEAD-' + Date.now(),
-        'Nombre_Cliente': datosLead.nombre,
-        'Email': datosLead.email || '',
-        'Telefono': datosLead.telefono,
-        'Tipo_Credito': datosLead.plan,
-        'Monto_Solicitado': datosLead.monto,
-        'Estado': datosLead.estado,
-        'Asesor_ID': usuarioActual.usuario,
-        'Fecha de la cita': datosLead.fechaCita || '',
-        'Hora de la cita': datosLead.horaCita || '',
-        'Lugar de la cita': datosLead.lugarCita || '',
-        'Observaciones': datosLead.observaciones || '',
-        'Empresa_ID': 'EMP001'
-    });
-    
+    // MISMO MÉTODO DE ENVÍO QUE EDITAR
     const script = document.createElement('script');
     script.src = `${API_URL}?${params.toString()}`;
     document.head.appendChild(script);
     
-    console.log('📤 Script enviado a:', API_URL);
+    console.log('🚀 JSONP ENVIADO DIRECTAMENTE');
+    
     return true;
 }
         // Función auxiliar para calcular probabilidad inicial basada en estado
@@ -1586,68 +1583,78 @@ function inicializarDashboard() {
     }
 }
         // Event listener para formulario nuevo lead
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el formulario
-    const form = document.getElementById('formNuevoLead');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            console.log('📝 Procesando nuevo lead...');
-            
-            // Obtener datos del formulario
-            const datosLead = {
-                nombre: document.getElementById('nuevo-nombre').value.trim(),
-                telefono: document.getElementById('nuevo-telefono').value.trim(),
-                email: document.getElementById('nuevo-email').value.trim(),
-                monto: document.getElementById('nuevo-monto').value,
-                estado: document.getElementById('nuevo-estado').value,
-                plan: document.getElementById('nuevo-plan').value,
-                fechaCita: document.getElementById('nuevo-fecha-cita').value,
-                horaCita: document.getElementById('nuevo-hora-cita').value,
-                lugarCita: document.getElementById('nuevo-lugar-cita').value,
-                observaciones: document.getElementById('nuevo-observaciones').value.trim()
-            };
-            
-            console.log('📋 Datos recopilados:', datosLead);
-            
-            // Validar campos requeridos
-            if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
-                alert('⚠️ Por favor complete todos los campos requeridos');
-                return;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listener para el formulario
+            const form = document.getElementById('formNuevoLead');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    console.log('📝 Procesando nuevo lead...');
+                    
+                    // Obtener datos del formulario
+                    const datosLead = {
+                        nombre: document.getElementById('nuevo-nombre').value.trim(),
+                        telefono: document.getElementById('nuevo-telefono').value.trim(),
+                        email: document.getElementById('nuevo-email').value.trim(),
+                        monto: document.getElementById('nuevo-monto').value,
+                        estado: document.getElementById('nuevo-estado').value,
+                        plan: document.getElementById('nuevo-plan').value,
+                        fechaCita: document.getElementById('nuevo-fecha-cita').value,
+                        horaCita: document.getElementById('nuevo-hora-cita').value,
+                        lugarCita: document.getElementById('nuevo-lugar-cita').value,
+                        observaciones: document.getElementById('nuevo-observaciones').value.trim()
+                    };
+                    
+                    console.log('📋 Datos recopilados:', datosLead);
+                    
+                    // Validar campos requeridos
+                    if (!datosLead.nombre || !datosLead.telefono || !datosLead.monto) {
+                        alert('⚠️ Por favor complete todos los campos requeridos');
+                        return;
+                    }
+                    
+                    // Validar monto
+                    if (parseInt(datosLead.monto) < 1000) {
+                        alert('⚠️ El monto mínimo es $1,000');
+                        return;
+                    }
+                    
+                    console.log('✅ Datos validados, guardando lead...');
+                    
+                    // Guardar en Google Sheets
+                    const exito = guardarLeadEnGoogleSheets(datosLead);
+                    
+                    if (exito) {
+                        alert(`✅ ¡Lead creado exitosamente!\n\n👤 Cliente: ${datosLead.nombre}\n💰 Monto: ${parseInt(datosLead.monto).toLocaleString()}\n📊 Estado: ${datosLead.estado}\n💳 Plan: ${datosLead.plan}\n\n🚀 ¡El lead se ha agregado a tu Google Sheets!`);
+                        
+                        // Cerrar modal
+                        cerrarModal();
+                        
+                        // Mostrar mensaje de confirmación
+                        console.log('🎉 Lead creado exitosamente');
+                    }
+                });
             }
-            
-            // Validar monto
-            if (parseInt(datosLead.monto) < 1000) {
-                alert('⚠️ El monto mínimo es $1,000');
-                return;
-            }
-            
-            console.log('✅ Datos validados, guardando lead...');
-            
-            // Guardar en Google Sheets - LA FUNCIÓN SE ENCARGA DE TODO
-            guardarLeadEnGoogleSheets(datosLead);
-        });
-    }
-    
-    // Inicializar dashboard
-    inicializarDashboard();
-    
-    // COMENTADO: Cerrar modal al hacer clic fuera
-    /*
-    window.onclick = function(event) {
-        const modalNuevo = document.getElementById('modalNuevoLead');
-        const modalEditar = document.getElementById('modalEditarLead');
 
-        if (event.target === modalNuevo) {
+            // Inicializar dashboard
+            inicializarDashboard();
+            
+        // COMENTADO: Cerrar modal al hacer clic fuera
+        /*
+        window.onclick = function(event) {
+            const modalNuevo = document.getElementById('modalNuevoLead');
+            const modalEditar = document.getElementById('modalEditarLead');
+    
+            if (event.target === modalNuevo) {
             cerrarModal();
+            }
+            if (event.target === modalEditar) {
+                cerrarModalEditar();
+            }
         }
-        if (event.target === modalEditar) {
-            cerrarModalEditar();
-        }
-    }
-    */
-});
+*/
+        });
         
 // ============================================
 // FUNCIÓN EDITAR LEAD - ULTRA RÁPIDA

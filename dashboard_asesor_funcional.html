@@ -1450,9 +1450,7 @@ function mostrarLeads() {
             }
         }
 
-// ============================================
-// FUNCIÓN GUARDAR LEAD - OPTIMIZADA CON DELAY
-// ============================================
+// FUNCIÓN REAL PARA GUARDAR LEADS - CON REFRESH FORZADO
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     
@@ -1464,13 +1462,30 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH CON DELAY MÍNIMO PARA ASEGURAR SINCRONIZACIÓN
-            console.log('🔄 Iniciando refresh optimizado...');
+            // REFRESH FORZADO - MÚLTIPLES INTENTOS
+            console.log('🔄 Iniciando refresh FORZADO...');
+            
+            // PRIMER INTENTO - INMEDIATO
             setTimeout(() => {
+                console.log('🚀 Refresh intento #1...');
                 cargarLeadsDesdeAPI();
                 actualizarMetricas();
-                console.log('✅ Nuevo lead - Refresh completado');
-            }, 800); // Delay suficiente para que Google Sheets se actualice
+            }, 500);
+            
+            // SEGUNDO INTENTO - POR SI EL PRIMERO FALLA
+            setTimeout(() => {
+                console.log('🚀 Refresh intento #2 (respaldo)...');
+                cargarLeadsDesdeAPI();
+                actualizarMetricas();
+            }, 1500);
+            
+            // TERCER INTENTO - GARANTÍA TOTAL
+            setTimeout(() => {
+                console.log('🚀 Refresh intento #3 (garantía)...');
+                cargarLeadsDesdeAPI();
+                actualizarMetricas();
+                console.log('✅ Refresh triple completado');
+            }, 3000);
             
         } else {
             alert(`❌ Error guardando lead: ${response.message}`);

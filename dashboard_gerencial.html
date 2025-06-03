@@ -72,23 +72,6 @@
             font-size: 1.2rem;
         }
 
-        /* ✅ BOTÓN CERRAR SESIÓN AGREGADO */
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-left: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
         /* MÉTRICAS */
         .metrics-grid {
             display: grid;
@@ -389,7 +372,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- ✅ HEADER CON BOTÓN CERRAR SESIÓN AGREGADO -->
+        <!-- HEADER -->
         <div class="header">
             <div class="header-content">
                 <div>
@@ -399,13 +382,9 @@
                 <div class="user-info">
                     <div class="user-avatar">G</div>
                     <div>
-                        <div style="font-weight: 600;" id="user-name">Gerente General</div>
-                        <div style="font-size: 0.9rem; opacity: 0.8;" id="user-role">Administrador</div>
+                        <div style="font-weight: 600;">Gerente General</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Administrador</div>
                     </div>
-                    <!-- ✅ BOTÓN CERRAR SESIÓN -->
-                    <button class="logout-btn" onclick="cerrarSesionGerencial()">
-                        🚪 Cerrar Sesión
-                    </button>
                 </div>
             </div>
         </div>
@@ -526,49 +505,6 @@
         let todosLosLeads = [];
         let leadsFiltrados = [];
         let asesoresData = {};
-
-        // ✅ VALIDACIÓN DE ACCESO GERENCIAL (IGUAL QUE EL DASHBOARD ASESOR)
-        function validarAccesoGerencial() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const user = urlParams.get('user');
-            const type = urlParams.get('type');
-            
-            console.log('🔒 Validando acceso gerencial...');
-            console.log('👤 Usuario:', user);
-            console.log('🎭 Tipo:', type);
-            
-            // Solo permitir acceso con parámetros correctos
-            if (!user || type !== 'GERENTE') {
-                console.log('⚠️ Acceso no autorizado al dashboard gerencial');
-                alert('Acceso restringido. Será redirigido al login.');
-                window.location.href = './index.html';
-                return false;
-            }
-            
-            console.log('✅ Acceso autorizado para:', user);
-            
-            // Actualizar información del usuario
-            document.getElementById('user-name').textContent = user;
-            document.getElementById('user-role').textContent = 'Administrador';
-            
-            return true;
-        }
-
-        // ✅ FUNCIÓN PARA CERRAR SESIÓN GERENCIAL
-        function cerrarSesionGerencial() {
-            if (confirm('¿Está seguro que desea cerrar sesión?')) {
-                console.log('🚪 Cerrando sesión gerencial...');
-                // Limpiar cualquier sesión guardada
-                try {
-                    sessionStorage.removeItem('crm_sesion');
-                } catch (e) {
-                    console.log('SessionStorage no disponible');
-                }
-                
-                // Redirigir al login
-                window.location.href = './index.html';
-            }
-        }
 
         // FUNCIÓN PRINCIPAL - COPIADA DEL ASESOR PERO SIN FILTRO DE ASESOR
         function cargarLeadsDesdeAPI() {
@@ -849,22 +785,10 @@
             `;
         }
 
-        // ✅ INICIALIZACIÓN CON VALIDACIÓN DE SEGURIDAD
-        function inicializarDashboardGerencial() {
-            console.log('🚀 Iniciando Dashboard Gerencial...');
-            
-            // ✅ VALIDAR ACCESO PRIMERO (IGUAL QUE EL DASHBOARD ASESOR)
-            if (!validarAccesoGerencial()) {
-                return; // Si no tiene acceso, se redirige al login
-            }
-            
-            // Si tiene acceso, cargar datos
-            cargarLeadsDesdeAPI();
-        }
-
-        // ✅ INICIALIZACIÓN CON VALIDACIÓN DE SEGURIDAD
+        // INICIALIZACIÓN - IGUAL AL ASESOR
         document.addEventListener('DOMContentLoaded', function() {
-            inicializarDashboardGerencial();
+            console.log('🚀 Iniciando Dashboard Gerencial...');
+            cargarLeadsDesdeAPI();
         });
     </script>
 </body>

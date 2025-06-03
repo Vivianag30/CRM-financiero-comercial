@@ -541,6 +541,7 @@
                                     <option value="INCONTACTABLE">📵 INCONTACTABLE</option>
                                     <option value="NO CONTESTA">🔇 NO CONTESTA</option>
                                     <option value="VOLVER A LLAMAR">📞 VOLVER A LLAMAR</option>
+                                    <option value="CERRADO">✅ CERRADO</option>
                                 </select>
                             </div>
                         </div>
@@ -1686,6 +1687,7 @@ function procesarEdicionLead() {
             alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             document.getElementById('modalEditarLead').style.display = 'none';
             cargarLeadsDesdeAPI();
+            actualizarContadores();
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }

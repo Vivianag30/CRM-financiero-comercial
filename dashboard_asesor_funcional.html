@@ -1450,7 +1450,9 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN REAL PARA GUARDAR LEADS - CON REFRESH FORZADO
+// ============================================
+// FUNCIÓN GUARDAR CON CACHE BUSTER
+// ============================================
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     
@@ -1462,30 +1464,15 @@ function guardarLeadEnGoogleSheets(datosLead) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH FORZADO - MÚLTIPLES INTENTOS
-            console.log('🔄 Iniciando refresh FORZADO...');
+            // CACHE BUSTER + REFRESH FORZADO
+            console.log('🚀 Iniciando CACHE BUSTER refresh...');
             
-            // PRIMER INTENTO - INMEDIATO
             setTimeout(() => {
-                console.log('🚀 Refresh intento #1...');
-                cargarLeadsDesdeAPI();
+                // FORZAR NUEVA CARGA CON CACHE BUSTER
+                cargarLeadsConCacheBuster();
                 actualizarMetricas();
-            }, 500);
-            
-            // SEGUNDO INTENTO - POR SI EL PRIMERO FALLA
-            setTimeout(() => {
-                console.log('🚀 Refresh intento #2 (respaldo)...');
-                cargarLeadsDesdeAPI();
-                actualizarMetricas();
-            }, 1500);
-            
-            // TERCER INTENTO - GARANTÍA TOTAL
-            setTimeout(() => {
-                console.log('🚀 Refresh intento #3 (garantía)...');
-                cargarLeadsDesdeAPI();
-                actualizarMetricas();
-                console.log('✅ Refresh triple completado');
-            }, 3000);
+                console.log('✅ Cache buster refresh completado');
+            }, 1000);
             
         } else {
             alert(`❌ Error guardando lead: ${response.message}`);
@@ -1518,6 +1505,89 @@ function guardarLeadEnGoogleSheets(datosLead) {
     document.head.appendChild(script);
     
     return true;
+}
+
+// ============================================
+// NUEVA FUNCIÓN: CARGAR LEADS CON CACHE BUSTER
+// ============================================
+async function cargarLeadsConCacheBuster() {
+    console.log('🔥 CACHE BUSTER: Forzando carga desde Google Sheets...');
+    
+    // Mostrar indicador de carga
+    document.getElementById('leads-container').innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <h3>Actualizando leads...</h3>
+            <p>Sincronizando cambios...</p>
+        </div>
+    `;
+    
+    try {
+        // CACHE BUSTER: Agregar timestamp único para evitar cache
+        const cacheBuster = Date.now();
+        const formData = new FormData();
+        formData.append('action', 'getLeads');
+        formData.append('asesorId', usuarioActual.usuario);
+        formData.append('empresaId', 'EMP001');
+        formData.append('cacheBuster', cacheBuster); // ← ESTO ROMPE EL CACHE
+        
+        console.log('📡 CACHE BUSTER: Enviando petición con timestamp:', cacheBuster);
+        
+        // URL con cache buster también
+        const urlConCacheBuster = `${API_URL}?cb=${cacheBuster}`;
+        
+        const response = await fetch(urlConCacheBuster, {
+            method: 'POST',
+            body: formData,
+            cache: 'no-cache', // ← FORZAR NO CACHE
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        console.log('📡 CACHE BUSTER: Respuesta recibida:', response.status);
+        
+        if (response.ok) {
+            const text = await response.text();
+            console.log('📡 CACHE BUSTER: Contenido:', text.substring(0, 200) + '...');
+            
+            // Buscar JSON en la respuesta
+            try {
+                const jsonMatch = text.match(/\{.*\}/);
+                if (jsonMatch) {
+                    const result = JSON.parse(jsonMatch[0]);
+                    if (result.success && result.data) {
+                        leadsData = result.data;
+                        console.log('✅ CACHE BUSTER: Leads NUEVOS cargados:', leadsData.length);
+                        
+                        // Log del último lead (debería ser el nuevo)
+                        const ultimoLead = leadsData[leadsData.length - 1];
+                        console.log('🆕 ÚLTIMO LEAD CARGADO:', ultimoLead?.nombre || 'Sin nombre');
+                    }
+                }
+            } catch (e) {
+                console.log('⚠️ CACHE BUSTER: Error parseando JSON, usando función normal');
+                // Fallback a función normal
+                cargarLeadsDesdeAPI();
+                return;
+            }
+        } else {
+            console.log('❌ CACHE BUSTER: Error en respuesta, usando función normal');
+            cargarLeadsDesdeAPI();
+            return;
+        }
+        
+    } catch (error) {
+        console.log('❌ CACHE BUSTER: Error de conexión, usando función normal');
+        cargarLeadsDesdeAPI();
+        return;
+    }
+    
+    // Mostrar leads con datos frescos
+    mostrarLeads();
+    actualizarMetricas();
+    console.log('🎉 CACHE BUSTER: Refresh completado con datos frescos');
 }
         // Función auxiliar para calcular probabilidad inicial basada en estado
         function calcularProbabilidadInicial(estado) {

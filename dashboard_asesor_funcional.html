@@ -1450,31 +1450,51 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN GUARDAR LEAD - CON LOGS DE DEBUG EXTREMO
+// FUNCIÓN GUARDAR LEAD - VERSIÓN SIMPLE Y CORRECTA
 function guardarLeadEnGoogleSheets(datosLead) {
-    console.log('🚀 INICIO - guardarLeadEnGoogleSheets');
-    console.log('📋 Datos recibidos:', datosLead);
+    console.log('💾 Guardando lead REAL en Google Sheets...');
+    console.log('📋 Datos recopilados:', datosLead);
     
-    // ENVÍO JSONP DIRECTO
     const callbackName = 'saveLead_' + Date.now();
-    console.log('📡 Callback creado:', callbackName);
-    
     window[callbackName] = function(response) {
-        console.log('🎯 CALLBACK EJECUTADO - response:', response);
+        console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
         
-window[callbackName] = function(response) {
-    console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
+        if (response && response.success) {
+            alert('✅ ¡Lead creado exitosamente!\n\nCliente: ' + datosLead.nombre);
+            cerrarModal();
+            recargarLeads();
+        } else {
+            alert('❌ Error: ' + (response?.message || 'Error desconocido'));
+        }
+        
+        delete window[callbackName];
+    };
     
-    if (response && response.success) {
-        alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
-        cerrarModal();
-        recargarLeads();
-    } else {
-        alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
-    }
+    const params = new URLSearchParams({
+        action: 'addLead',
+        callback: callbackName,
+        'ID_Lead': 'LEAD-' + Date.now(),
+        'Nombre_Cliente': datosLead.nombre,
+        'Email': datosLead.email || '',
+        'Telefono': datosLead.telefono,
+        'Tipo_Credito': datosLead.plan,
+        'Monto_Solicitado': datosLead.monto,
+        'Estado': datosLead.estado,
+        'Asesor_ID': usuarioActual.usuario,
+        'Fecha de la cita': datosLead.fechaCita || '',
+        'Hora de la cita': datosLead.horaCita || '',
+        'Lugar de la cita': datosLead.lugarCita || '',
+        'Observaciones': datosLead.observaciones || '',
+        'Empresa_ID': 'EMP001'
+    });
     
-    delete window[callbackName];
-};
+    const script = document.createElement('script');
+    script.src = API_URL + '?' + params.toString();
+    document.head.appendChild(script);
+    
+    console.log('🚀 JSONP ENVIADO');
+    return true;
+}
     
     // Resto del código igual...
     const params = new URLSearchParams({

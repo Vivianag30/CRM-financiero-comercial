@@ -1450,34 +1450,36 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN GUARDAR CON REFRESH MANUAL
+// ============================================
+// FUNCIÓN GUARDAR LEAD - COPIANDO PATRÓN QUE FUNCIONA
+// ============================================
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
+    console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
     
+    // ENVÍO JSONP DIRECTO (MISMO PATRÓN QUE EDITAR)
     const callbackName = 'saveLead_' + Date.now();
     window[callbackName] = function(response) {
-        console.log('📡 Respuesta guardar:', response);
+        console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
         
-        if (response.success) {
+        if (response && response.success) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
-
-            mostrarNotificacionRefresh();
             
-            console.log('🚀 Callback ejecutado - iniciando refresh...');
-            setTimeout(() => {
-                cargarLeadsDesdeAPI();
-                actualizarMetricas();
-            }, 1000);
+            // REFRESH ULTRA RÁPIDO - INMEDIATO (IGUAL QUE EDITAR)
+            console.log('⚡ Refresh ultra rápido iniciando...');
+            cargarLeadsDesdeAPI();
+            actualizarMetricas();
+            console.log('✅ Nuevo lead - Refresh completado inmediatamente');
             
         } else {
-            alert(`❌ Error guardando lead: ${response.message}`);
+            alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }
         
         delete window[callbackName];
     };
     
-    // Construir parámetros
+    // CONSTRUIR PARÁMETROS (MISMO FORMATO QUE EDITAR)
     const params = new URLSearchParams({
         action: 'addLead',
         callback: callbackName,
@@ -1496,42 +1498,14 @@ function guardarLeadEnGoogleSheets(datosLead) {
         'Empresa_ID': 'EMP001'
     });
     
+    // MISMO MÉTODO DE ENVÍO QUE EDITAR
     const script = document.createElement('script');
     script.src = `${API_URL}?${params.toString()}`;
     document.head.appendChild(script);
     
-    // WORKAROUND: REFRESH MANUAL DESPUÉS DE 3 SEGUNDOS
-    console.log('⏰ Programando refresh manual en 3 segundos...');
-    setTimeout(() => {
-        console.log('🔄 Ejecutando refresh manual...');
-        cargarLeadsDesdeAPI();
-        actualizarMetricas();
-        console.log('✅ Refresh manual completado');
-    }, 3000);
+    console.log('🚀 JSONP ENVIADO DIRECTAMENTE');
     
     return true;
-}
-
-// ALTERNATIVA: BOTÓN DE REFRESH INMEDIATO
-function mostrarNotificacionRefresh() {
-    // Crear notificación temporal
-    const notification = document.createElement('div');
-    notification.innerHTML = `
-        <div style="position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-            <strong>✅ Lead guardado!</strong><br>
-            <button onclick="recargarLeads(); this.parentElement.parentElement.remove();" style="margin-top: 8px; background: white; color: #4CAF50; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-                🔄 Ver nuevo lead
-            </button>
-        </div>
-    `;
-    document.body.appendChild(notification);
-    
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 5000);
 }
         // Función auxiliar para calcular probabilidad inicial basada en estado
         function calcularProbabilidadInicial(estado) {

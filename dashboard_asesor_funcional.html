@@ -541,7 +541,7 @@
                                     <option value="INCONTACTABLE">📵 INCONTACTABLE</option>
                                     <option value="NO CONTESTA">🔇 NO CONTESTA</option>
                                     <option value="VOLVER A LLAMAR">📞 VOLVER A LLAMAR</option>
-                                    <option value="CERRADO">✅ CERRADO</option>
+                                    <option value="CERRADOS">✅ CERRADO</option>
                                 </select>
                             </div>
                         </div>
@@ -569,15 +569,12 @@
 
                         <div class="form-group">
                             <label>📍 Lugar de Cita</label>
-                            <select id="editar-lugar-cita">
-                                <option value="">Seleccionar lugar...</option>
-                                <option value="OFICINA_PRINCIPAL">🏢 Oficina Principal</option>
-                                <option value="OFICINA_NORTE">🏢 Oficina Norte</option>
-                                <option value="OFICINA_SUR">🏢 Oficina Sur</option>
-                                <option value="DOMICILIO_CLIENTE">🏠 Domicilio Cliente</option>
-                                <option value="VIDEOLLAMADA">💻 Videollamada</option>
-                                <option value="OTRO">📍 Otro</option>
-                            </select>
+                                  <input 
+                                    type="text" 
+                                    id="editar-lugar-cita" 
+                                    placeholder="Ej: Oficina Central, Casa del cliente, CC El Jardín..."
+                                    maxlength="100"
+                                  >
                         </div>
                         
                         <div class="form-group">
@@ -744,15 +741,12 @@
 
                         <div class="form-group">
                             <label>📍 Lugar de Cita</label>
-                            <select id="nuevo-lugar-cita">
-                                <option value="">Seleccionar lugar...</option>
-                                <option value="OFICINA_PRINCIPAL">🏢 Oficina Principal</option>
-                                <option value="OFICINA_NORTE">🏢 Oficina Norte</option>
-                                <option value="OFICINA_SUR">🏢 Oficina Sur</option>
-                                <option value="DOMICILIO_CLIENTE">🏠 Domicilio Cliente</option>
-                                <option value="VIDEOLLAMADA">💻 Videollamada</option>
-                                <option value="OTRO">📍 Otro</option>
-                            </select>
+                            <input
+                                type="text" 
+                                id="nuevo-lugar-cita" 
+                                placeholder="Ej: Oficina Central, Casa del cliente, CC El Jardín..."
+                                maxlength="100"
+                            >
                         </div>
                         
                         <div class="form-group">

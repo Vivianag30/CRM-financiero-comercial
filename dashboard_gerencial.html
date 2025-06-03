@@ -509,16 +509,24 @@
         let leadsFiltrados = [];
         let asesoresData = {};
 
-        // FUNCIÓN PRINCIPAL - COPIADA DEL ASESOR PERO SIN FILTRO DE ASESOR
+        // FUNCIÓN PRINCIPAL - DEBUGGING MEJORADO
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Gerencia - Cargando TODOS los leads...');
 
             // MISMO CALLBACK PATTERN QUE EL ASESOR
             const callbackName = 'getLeads_' + Date.now();
+            console.log('📞 Callback creado:', callbackName);
+            
             window[callbackName] = function(response) {
+                console.log('📡 *** CALLBACK EJECUTADO ***');
                 console.log('📡 Respuesta recibida:', response);
+                console.log('📡 Tipo de respuesta:', typeof response);
 
                 if (response && response.success && response.data) {
+                    console.log('✅ Datos válidos recibidos');
+                    console.log('📊 Total leads:', response.data.length);
+                    console.log('🔍 Muestra de datos:', response.data.slice(0, 2));
+                    
                     todosLosLeads = response.data;
                     leadsFiltrados = [...todosLosLeads];
                     
@@ -531,24 +539,52 @@
                     
                 } else {
                     console.error('❌ Error en respuesta:', response);
-                    mostrarError('Error al cargar los datos');
+                    console.error('❌ Response.success:', response?.success);
+                    console.error('❌ Response.data:', response?.data);
+                    mostrarError('Error al cargar los datos: ' + (response?.message || 'Respuesta inválida'));
                 }
 
                 delete window[callbackName];
+                console.log('🧹 Callback limpiado');
             };
 
-            // MISMO ENVÍO QUE EL ASESOR PERO SIN FILTRO
+            // AGREGAR TIMEOUT PARA DEBUG
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    console.error('⏰ TIMEOUT: Callback no ejecutado después de 10 segundos');
+                    console.error('🔍 Posible problema: Backend no responde o URL incorrecta');
+                    delete window[callbackName];
+                    mostrarError('Timeout: El servidor no respondió en 10 segundos');
+                }
+            }, 10000);
+
+            // ENVÍO CON MÁS DEBUG
             const params = new URLSearchParams({
                 action: 'getLeads',
-                callback: callbackName
-                // SIN asesorId para obtener TODOS
+                callback: callbackName,
+                debug: 'gerencial' // Para identificar en el backend
             });
 
+            const scriptUrl = API_URL + '?' + params.toString();
+            console.log('📤 URL completa:', scriptUrl);
+            console.log('🔗 API_URL:', API_URL);
+            console.log('📋 Parámetros:', params.toString());
+
             const script = document.createElement('script');
-            script.src = API_URL + '?' + params.toString();
+            script.src = scriptUrl;
+            script.onerror = function(error) {
+                console.error('❌ Error al cargar script JSONP:', error);
+                console.error('❌ Script URL:', scriptUrl);
+                mostrarError('Error de conexión JSONP');
+                delete window[callbackName];
+            };
+            script.onload = function() {
+                console.log('✅ Script JSONP cargado correctamente');
+            };
             document.head.appendChild(script);
 
             console.log('🚀 JSONP enviado para cargar todos los leads');
+            console.log('⏳ Esperando respuesta del servidor...');
         }
 
         // PROCESAMIENTO GERENCIAL

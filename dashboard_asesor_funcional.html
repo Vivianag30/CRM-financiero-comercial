@@ -1450,39 +1450,24 @@ function mostrarLeads() {
             }
         }
 
-// FUNCIÓN GUARDAR LEAD - CON REFRESH DESPUÉS DEL ALERT Y SIN DUPLICACIÓN
+// FUNCIÓN GUARDAR LEAD - USANDO MISMA FUNCIÓN QUE EL BOTÓN
 function guardarLeadEnGoogleSheets(datosLead) {
     console.log('💾 Guardando lead REAL en Google Sheets...');
     console.log('📋 Datos recopilados DIRECTAMENTE:', datosLead);
-    
-    // PREVENIR DOBLE ENVÍO - DESHABILITAR BOTÓN
-    const saveButton = document.querySelector('#formNuevoLead button[type="submit"]');
-    if (saveButton) {
-        saveButton.disabled = true;
-        saveButton.textContent = 'Guardando...';
-    }
     
     // ENVÍO JSONP DIRECTO (MISMO PATRÓN QUE EDITAR)
     const callbackName = 'saveLead_' + Date.now();
     window[callbackName] = function(response) {
         console.log('📡 ¡RESPUESTA RECIBIDA!:', response);
         
-        // RESTAURAR BOTÓN SIEMPRE
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.textContent = '💾 Guardar Lead';
-        }
-        
         if (response && response.success) {
             alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             cerrarModal();
             
-            // REFRESH DESPUÉS DEL ALERT CON DELAY MAYOR
-            setTimeout(() => {
-                console.log('⚡ Refresh después del alert - iniciando...');
-                recargarLeads();
-                console.log('✅ Nuevo lead - Refresh completado después del alert');
-            }, 3000);
+            // USAR LA MISMA FUNCIÓN QUE EL BOTÓN "ACTUALIZAR"
+            console.log('⚡ Usando recargarLeads() como el botón...');
+            recargarLeads(); // ← ESTA ES LA CLAVE
+            console.log('✅ Nuevo lead - Refresh completado con recargarLeads()');
             
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);

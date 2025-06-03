@@ -1450,52 +1450,55 @@ function mostrarLeads() {
             }
         }
 
-         // FUNCIÓN REAL PARA GUARDAR LEADS
-        function guardarLeadEnGoogleSheets(datosLead) {
-            console.log('💾 Guardando lead REAL en Google Sheets...');
+         // FUNCIÓN REAL PARA GUARDAR LEADS - CON AUTO-REFRESH
+function guardarLeadEnGoogleSheets(datosLead) {
+    console.log('💾 Guardando lead REAL en Google Sheets...');
+    
+    const callbackName = 'saveLead_' + Date.now();
+    window[callbackName] = function(response) {
+        console.log('📡 Respuesta guardar:', response);
+        
+        if (response.success) {
+            alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
+            cerrarModal();
             
-            const callbackName = 'saveLead_' + Date.now();
-            window[callbackName] = function(response) {
-                console.log('📡 Respuesta guardar:', response);
-                
-                if (response.success) {
-                    alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
-                    cerrarModal();
-                    // Recargar leads automáticamente
-                    cargarLeadsDesdeAPI();
-                } else {
-                    alert(`❌ Error guardando lead: ${response.message}`);
-                }
-                
-                delete window[callbackName];
-            };
+            // AUTO-REFRESH INMEDIATO
+            console.log('🔄 Recargando leads y métricas...');
+            cargarLeadsDesdeAPI();
+            actualizarMetricas();
             
-            // Construir parámetros
-            const params = new URLSearchParams({
-                action: 'addLead',
-                callback: callbackName,
-                'ID_Lead': 'LEAD-' + Date.now(),
-                'Nombre_Cliente': datosLead.nombre,
-                'Email': datosLead.email || '',
-                'Telefono': datosLead.telefono,
-                'Tipo_Credito': datosLead.plan,
-                'Monto_Solicitado': datosLead.monto,
-                'Estado': datosLead.estado,
-                'Asesor_ID': usuarioActual.usuario,
-                'Fecha de la cita': datosLead.fechaCita || '',
-                'Hora de la cita': datosLead.horaCita || '',
-                'Lugar de la cita': datosLead.lugarCita || '',
-                'Observaciones': datosLead.observaciones || '',
-                'Empresa_ID': 'EMP001'
-            });
-            
-            const script = document.createElement('script');
-            script.src = `${API_URL}?${params.toString()}`;
-            document.head.appendChild(script);
-            
-            return true;
+        } else {
+            alert(`❌ Error guardando lead: ${response.message}`);
         }
-
+        
+        delete window[callbackName];
+    };
+    
+    // Construir parámetros
+    const params = new URLSearchParams({
+        action: 'addLead',
+        callback: callbackName,
+        'ID_Lead': 'LEAD-' + Date.now(),
+        'Nombre_Cliente': datosLead.nombre,
+        'Email': datosLead.email || '',
+        'Telefono': datosLead.telefono,
+        'Tipo_Credito': datosLead.plan,
+        'Monto_Solicitado': datosLead.monto,
+        'Estado': datosLead.estado,
+        'Asesor_ID': usuarioActual.usuario,
+        'Fecha de la cita': datosLead.fechaCita || '',
+        'Hora de la cita': datosLead.horaCita || '',
+        'Lugar de la cita': datosLead.lugarCita || '',
+        'Observaciones': datosLead.observaciones || '',
+        'Empresa_ID': 'EMP001'
+    });
+    
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    document.head.appendChild(script);
+    
+    return true;
+}
         // Función auxiliar para calcular probabilidad inicial basada en estado
         function calcularProbabilidadInicial(estado) {
             const probabilidades = {
@@ -1664,8 +1667,15 @@ function procesarEdicionLead() {
         if (response && response.success) {
             alert(`✅ ¡Lead actualizado exitosamente!\n\nCliente: ${datosLead.nombre}`);
             document.getElementById('modalEditarLead').style.display = 'none';
-            cargarLeadsDesdeAPI();
-            actualizarContadores();
+            
+            // REFRESH OPTIMIZADO - MÁS RÁPIDO
+            console.log('⚡ Refresh rápido iniciando...');
+            setTimeout(() => {
+                cargarLeadsDesdeAPI();
+                actualizarMetricas(); // Cambiado de actualizarContadores a actualizarMetricas
+                console.log('✅ Refresh completado');
+            }, 300); // Súper rápido: 300ms
+            
         } else {
             alert(`❌ Error: ${response?.message || 'Error desconocido'}`);
         }

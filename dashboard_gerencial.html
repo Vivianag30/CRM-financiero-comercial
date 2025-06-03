@@ -385,9 +385,6 @@
                         <div style="font-weight: 600;">Gerente General</div>
                         <div style="font-size: 0.9rem; opacity: 0.8;">Administrador</div>
                     </div>
-                    <button class="btn btn-secondary" onclick="cerrarSesion()" style="margin-left: 15px; padding: 8px 15px; font-size: 0.8rem;">
-                        🚪 Cerrar Sesión
-                    </button>
                 </div>
             </div>
         </div>
@@ -509,7 +506,7 @@
         let leadsFiltrados = [];
         let asesoresData = {};
 
-        // FUNCIÓN PRINCIPAL - VERSIÓN SIMPLE QUE FUNCIONABA
+        // FUNCIÓN PRINCIPAL - COPIADA DEL ASESOR PERO SIN FILTRO DE ASESOR
         function cargarLeadsDesdeAPI() {
             console.log('🔄 Gerencia - Cargando TODOS los leads...');
 
@@ -788,40 +785,11 @@
             `;
         }
 
-        // INICIALIZACIÓN SIMPLIFICADA - SIN SESSIONSTORAGE
+        // INICIALIZACIÓN - IGUAL AL ASESOR
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando Dashboard Gerencial...');
-            
-            // VERIFICAR SI VIENE DEL LOGIN (usando URL params)
-            const urlParams = new URLSearchParams(window.location.search);
-            const usuario = urlParams.get('user');
-            const tipo = urlParams.get('type');
-            
-            if (!usuario || tipo !== 'GERENTE') {
-                console.log('❌ Acceso no autorizado');
-                // En lugar de redirigir, mostrar mensaje
-                document.querySelector('.header-title').textContent = '🔒 Acceso Restringido';
-                document.querySelector('.header-subtitle').textContent = 'Dashboard solo para supervisores';
-                return;
-            }
-            
-            console.log('✅ Acceso autorizado para:', usuario);
-            
-            // Actualizar información del usuario
-            document.querySelector('.user-info div div').textContent = usuario;
-            document.querySelector('.user-info div div:last-child').textContent = 'Supervisor';
-            
-            // Cargar datos
             cargarLeadsDesdeAPI();
         });
-        
-        // FUNCIÓN CERRAR SESIÓN SIMPLIFICADA
-        function cerrarSesion() {
-            console.log('🚪 Cerrando sesión...');
-            
-            // Redirigir al dashboard asesor (que sabemos que existe)
-            window.location.href = 'dashboard_asesor_funcional.html';
-        }
     </script>
 </body>
 </html>

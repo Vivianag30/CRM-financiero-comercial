@@ -1462,19 +1462,23 @@ function guardarLeadEnGoogleSheets(datosLead) {
     window[callbackName] = function(response) {
         console.log('🎯 CALLBACK EJECUTADO - response:', response);
         
-        if (response && response.success) {
-            console.log('✅ SUCCESS - Mostrando alert...');
-            alert(`✅ ¡Lead creado exitosamente!\n\nCliente: ${datosLead.nombre}`);
-            console.log('🚪 Cerrando modal...');
-            cerrarModal();
-            
-            console.log('⏰ Iniciando setTimeout de 3 segundos...');
-            setTimeout(() => {
-                console.log('🔥 TIMEOUT EJECUTADO - Iniciando refresh...');
-                console.log('📊 Estado antes del refresh - Total leads:', leadsData.length);
-                recargarLeads();
-                console.log('🎉 REFRESH COMPLETADO');
-            }, 3000);
+if (response && response.success) {
+    // MODAL PERSONALIZADO CON LA FUNCIÓN EXACTA DEL BOTÓN ACTUALIZAR
+    const modalCustom = document.createElement('div');
+    modalCustom.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <h3 style="color: #28a745; margin-bottom: 20px;">✅ ¡Lead creado exitosamente!</h3>
+                <p style="margin-bottom: 20px;"><strong>Cliente:</strong> ${datosLead.nombre}</p>
+                <button onclick="this.closest('div').parentElement.remove(); recargarLeads();" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    Aceptar y Ver Lead
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalCustom);
+    cerrarModal();
+}
             
         } else {
             console.log('❌ ERROR en response:', response);

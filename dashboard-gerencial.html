@@ -362,9 +362,9 @@
             </div>
 
             <div class="metric-card">
-                <h3>✅ Leads Cerrados</h3>
+                <h3>✅ CERRADOS</h3>
                 <div class="metric-value" id="closed-leads">0</div>
-                <div class="metric-description">CERRADOS exitosos</div>
+                <div class="metric-description">Ventas exitosas</div>
             </div>
 
             <div class="metric-card">
@@ -407,7 +407,6 @@
                         <option value="INCONTACTABLE">INCONTACTABLE</option>
                         <option value="NO CONTESTA">NO CONTESTA</option>
                         <option value="VOLVER A LLAMAR">VOLVER A LLAMAR</option>
-                        <option value="CERRADOS">CERRADOS</option>
                     </select>
                 </div>
 
@@ -483,7 +482,7 @@
             // Crear función callback global
             window[callbackName] = function(response) {
                 console.log('Respuesta recibida del servidor:', response);
-                console.log('PRIMER LEAD PARA DEBUG:', response.data?.[0]); // DEBUG AÑADIDO
+                console.log('PRIMER LEAD COMPLETO:', response.data?.[0]); // DEBUG PARA VER CAMPOS REALES
                 
                 if (response && response.success && response.data) {
                     allLeads = response.data;

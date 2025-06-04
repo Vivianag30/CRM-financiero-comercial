@@ -562,10 +562,14 @@
                 return sum + valor;
             }, 0);
             const closedLeads = allLeads.filter(lead => lead.estado === 'Cerrado').length;
-            const activeAdvisors = [...new Set(allLeads.map(lead => lead.asesor_asignado))].length;
+            
+            // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
+            const activeAdvisors = [...new Set(allLeads.map(lead => 
+                lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'
+            ))].length;
 
             document.getElementById('total-leads').textContent = totalLeads;
-            document.getElementById('pipeline-value').textContent = `$${totalPipeline.toLocaleString()}`;
+            document.getElementById('pipeline-value').textContent = `${totalPipeline.toLocaleString()}`;
             document.getElementById('closed-leads').textContent = closedLeads;
             document.getElementById('active-advisors').textContent = activeAdvisors;
         }
@@ -574,7 +578,9 @@
             const advisorStats = {};
             
             allLeads.forEach(lead => {
-                const advisor = lead.asesor_asignado;
+                // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
+                const advisor = lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar';
+                
                 if (!advisorStats[advisor]) {
                     advisorStats[advisor] = {
                         total: 0,
@@ -608,7 +614,7 @@
                             </div>
                             <div class="performance-stats">
                                 <span>Pipeline:</span>
-                                <strong>$${stats.pipeline.toLocaleString()}</strong>
+                                <strong>${stats.pipeline.toLocaleString()}</strong>
                             </div>
                             <div class="conversion-rate">
                                 📈 ${conversionRate}% conversión
@@ -626,7 +632,11 @@
         }
 
         function poblarFiltroAsesores() {
-            const asesores = [...new Set(allLeads.map(lead => lead.asesor_asignado))].sort();
+            // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
+            const asesores = [...new Set(allLeads.map(lead => 
+                lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'
+            ))].sort();
+            
             const select = document.getElementById('filter-advisor');
             
             // Limpiar opciones existentes (excepto la primera)
@@ -668,7 +678,7 @@
                         <td>$${valor.toLocaleString()}</td>
                         <td><span class="status-badge status-${lead.estado.toLowerCase().replace(' ', '')}">${lead.estado}</span></td>
                         <td><span class="priority-${lead.prioridad.toLowerCase()}">${lead.prioridad}</span></td>
-                        <td>${lead.asesor_asignado}</td>
+                        <td>${lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'}</td>
                         <td>${fechaCreacion}</td>
                         <td>${fechaCita}</td>
                         <td>${horaCita}</td>

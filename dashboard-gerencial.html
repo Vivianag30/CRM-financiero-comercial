@@ -634,9 +634,13 @@
 
         function poblarFiltroAsesores() {
             // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
-            const asesores = [...new Set(allLeads.map(lead => 
-                lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'
-            ))].sort();
+            const asesores = [...new Set(allLeads.map(lead => {
+                const asesor = lead.asesor_asignado || lead.asesor || lead.usuario_asesor || lead.nombre || 'Sin Asignar';
+                console.log('Asesor encontrado:', asesor); // DEBUG
+                return asesor;
+            }))].sort();
+            
+            console.log('TODOS LOS ASESORES:', asesores); // DEBUG
             
             const select = document.getElementById('filter-advisor');
             
@@ -698,12 +702,22 @@
             const dateFromFilter = document.getElementById('filter-date-from').value;
             const dateToFilter = document.getElementById('filter-date-to').value;
             
+            console.log('FILTROS APLICADOS:');
+            console.log('Asesor seleccionado:', advisorFilter);
+            console.log('Primer lead asesor real:', allLeads[0] ? (allLeads[0].asesor_asignado || allLeads[0].asesor || allLeads[0].usuario_asesor || allLeads[0].nombre) : 'No hay leads');
+            
             filteredLeads = allLeads.filter(lead => {
                 let incluir = true;
                 
-                if (statusFilter && lead.estado !== statusFilter) incluir = false;
-                if (advisorFilter && lead.asesor_asignado !== advisorFilter) incluir = false;
-                if (priorityFilter && lead.prioridad !== priorityFilter) incluir = false;
+                if (statusFilter && (lead.estado || 'Nuevo') !== statusFilter) incluir = false;
+                
+                if (advisorFilter) {
+                    const leadAsesor = lead.asesor_asignado || lead.asesor || lead.usuario_asesor || lead.nombre || 'Sin Asignar';
+                    console.log('Comparando:', advisorFilter, 'con', leadAsesor);
+                    if (leadAsesor !== advisorFilter) incluir = false;
+                }
+                
+                if (priorityFilter && (lead.prioridad || 'Media') !== priorityFilter) incluir = false;
                 
                 if (dateFromFilter) {
                     const leadDate = new Date(lead.fecha_creacion);
@@ -720,6 +734,7 @@
                 return incluir;
             });
             
+            console.log('Leads filtrados:', filteredLeads.length);
             mostrarLeads();
         }
 

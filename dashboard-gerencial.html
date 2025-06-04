@@ -47,7 +47,7 @@
             opacity: 0.9;
         }
 
-        /* BOTÓN CERRAR SESIÓN EXACTAMENTE IGUAL AL ASESOR */
+        /* BOTÓN CERRAR SESIÓN - IGUAL AL DASHBOARD ASESOR */
         .logout-btn {
             position: absolute;
             top: 20px;
@@ -340,7 +340,7 @@
         <div class="header">
             <h1>🏢 CRM Financiero - Dashboard Gerencial</h1>
             <p class="subtitle">Panel de Control Ejecutivo</p>
-            <!-- BOTÓN CERRAR SESIÓN EXACTO AL ASESOR -->
+            <!-- SOLO AGREGAR BOTÓN CERRAR SESIÓN -->
             <button class="logout-btn" onclick="cerrarSesion()">👤 Cerrar Sesión</button>
         </div>
 
@@ -469,14 +469,14 @@
         let allLeads = [];
         let filteredLeads = [];
 
-        // FUNCIÓN CERRAR SESIÓN SIMPLIFICADA
+        // SOLO AGREGAR FUNCIÓN CERRAR SESIÓN
         function cerrarSesion() {
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
                 window.location.href = './index.html';
             }
         }
 
-        // Función para cargar datos desde Google Apps Script - MISMO MÉTODO QUE EL ASESOR
+        // TU CÓDIGO ORIGINAL QUE FUNCIONA - SIN CAMBIOS
         function cargarLeadsDesdeAPI() {
             console.log('Cargando leads desde Google Apps Script...');
             
@@ -502,9 +502,9 @@
                 if (script) script.remove();
             };
             
-            // USAR LA MISMA URL QUE FUNCIONA EN EL DASHBOARD ASESOR
+            // TU URL ORIGINAL QUE FUNCIONA
             const script = document.createElement('script');
-            const baseUrl = 'https://script.google.com/macros/s/AKfycbwGXqE0z1Nz8RkFwQbEJVTdFJXbRdPF0bAaTIDzJdlqPPWdGjT0sEgCcj0DzWE-Rb6h/exec';
+            const baseUrl = 'https://script.google.com/macros/s/AKfycbxYHuAxTW_D4iMMqg7SLi3JX4NJUFvlmLDcmQpTBUHtAUKATGnMBUC8JkFsrCUr3vzu/exec';
             
             // SIN FILTRO DE ASESOR PARA MOSTRAR TODOS LOS LEADS
             const params = new URLSearchParams({
@@ -533,6 +533,7 @@
             }, 15000);
         }
 
+        // TU CÓDIGO ORIGINAL - SIN CAMBIOS
         function procesarLeads() {
             console.log('Procesando leads:', allLeads);
             
@@ -664,7 +665,7 @@
                         <td>${lead.telefono}</td>
                         <td>${lead.email}</td>
                         <td>${lead.tipo_producto}</td>
-                        <td>${valor.toLocaleString()}</td>
+                        <td>$${valor.toLocaleString()}</td>
                         <td><span class="status-badge status-${lead.estado.toLowerCase().replace(' ', '')}">${lead.estado}</span></td>
                         <td><span class="priority-${lead.prioridad.toLowerCase()}">${lead.prioridad}</span></td>
                         <td>${lead.asesor_asignado}</td>
@@ -723,7 +724,7 @@
         }
 
         function actualizarDatos() {
-            document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="11" class="loading">Actualizando datos...</td></tr>';
+            document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="14" class="loading">Actualizando datos...</td></tr>';
             cargarLeadsDesdeAPI();
         }
 
@@ -732,7 +733,7 @@
             tbody.innerHTML = `<tr><td colspan="14" class="error-message">${mensaje}</td></tr>`;
         }
 
-        // INICIALIZACIÓN SIN VALIDACIÓN DE SESIÓN
+        // INICIALIZACIÓN - TU CÓDIGO ORIGINAL
         function inicializarDashboard() {
             console.log('Inicializando dashboard gerencial...');
             cargarLeadsDesdeAPI();

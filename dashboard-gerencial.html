@@ -221,12 +221,16 @@
             display: inline-block;
         }
 
-        .status-nuevo { background: #e3f2fd; color: #1976d2; }
-        .status-contactado { background: #f3e5f5; color: #7b1fa2; }
-        .status-seguimiento { background: #fff3e0; color: #f57c00; }
-        .status-propuesta { background: #e8f5e8; color: #388e3c; }
-        .status-cerrado { background: #e1f5fe; color: #0277bd; }
-        .status-perdido { background: #ffebee; color: #d32f2f; }
+        .status-nuevos { background: #e3f2fd; color: #1976d2; }
+        .status-interesado { background: #f3e5f5; color: #7b1fa2; }
+        .status-gestionando { background: #fff3e0; color: #f57c00; }
+        .status-caliente { background: #ffebee; color: #d32f2f; }
+        .status-reagendo { background: #e8f5e8; color: #388e3c; }
+        .status-perdido { background: #fafafa; color: #616161; }
+        .status-incontactable { background: #f1f8e9; color: #689f38; }
+        .status-nocontesta { background: #fff8e1; color: #ffa000; }
+        .status-volverallmar { background: #e0f2f1; color: #00796b; }
+        .status-cerrados { background: #e1f5fe; color: #0277bd; }
 
         .priority-alta { color: #e74c3c; font-weight: bold; }
         .priority-media { color: #f39c12; font-weight: bold; }
@@ -360,7 +364,7 @@
             <div class="metric-card">
                 <h3>✅ Leads Cerrados</h3>
                 <div class="metric-value" id="closed-leads">0</div>
-                <div class="metric-description">Ventas exitosas</div>
+                <div class="metric-description">CERRADOS exitosos</div>
             </div>
 
             <div class="metric-card">
@@ -394,9 +398,15 @@
                     <label>Estado:</label>
                     <select id="filter-status">
                         <option value="">Todos los estados</option>
-                        <option value="REAGENDO">REAGENDO</option>
-                        <option value="GESTIONANDO">GESTIONANDO</option>
                         <option value="NUEVOS">NUEVOS</option>
+                        <option value="INTERESADO">INTERESADO</option>
+                        <option value="GESTIONANDO">GESTIONANDO</option>
+                        <option value="CALIENTE">CALIENTE</option>
+                        <option value="REAGENDO">REAGENDO</option>
+                        <option value="PERDIDO">PERDIDO</option>
+                        <option value="INCONTACTABLE">INCONTACTABLE</option>
+                        <option value="NO CONTESTA">NO CONTESTA</option>
+                        <option value="VOLVER A LLAMAR">VOLVER A LLAMAR</option>
                         <option value="CERRADOS">CERRADOS</option>
                     </select>
                 </div>

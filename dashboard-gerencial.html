@@ -394,12 +394,10 @@
                     <label>Estado:</label>
                     <select id="filter-status">
                         <option value="">Todos los estados</option>
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Contactado">Contactado</option>
-                        <option value="Seguimiento">Seguimiento</option>
-                        <option value="Propuesta Enviada">Propuesta Enviada</option>
-                        <option value="Cerrado">Cerrado</option>
-                        <option value="Perdido">Perdido</option>
+                        <option value="REAGENDO">REAGENDO</option>
+                        <option value="GESTIONANDO">GESTIONANDO</option>
+                        <option value="NUEVOS">NUEVOS</option>
+                        <option value="CERRADOS">CERRADOS</option>
                     </select>
                 </div>
 
@@ -407,16 +405,6 @@
                     <label>Asesor:</label>
                     <select id="filter-advisor">
                         <option value="">Todos los asesores</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Prioridad:</label>
-                    <select id="filter-priority">
-                        <option value="">Todas las prioridades</option>
-                        <option value="Alta">Alta</option>
-                        <option value="Media">Media</option>
-                        <option value="Baja">Baja</option>
                     </select>
                 </div>
 
@@ -440,23 +428,22 @@
                         <tr>
                             <th>ID</th>
                             <th>Cliente</th>
-                            <th>Empresa</th>
-                            <th>Teléfono</th>
                             <th>Email</th>
+                            <th>Teléfono</th>
                             <th>Producto</th>
                             <th>Valor</th>
                             <th>Estado</th>
-                            <th>Prioridad</th>
                             <th>Asesor</th>
                             <th>Fecha Creación</th>
                             <th>Fecha Cita</th>
                             <th>Hora Cita</th>
                             <th>Ubicación Cita</th>
+                            <th>Observaciones</th>
                         </tr>
                     </thead>
                     <tbody id="leads-tbody">
                         <tr>
-                            <td colspan="14" class="loading">Cargando leads...</td>
+                            <td colspan="13" class="loading">Cargando leads...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -633,14 +620,8 @@
         }
 
         function poblarFiltroAsesores() {
-            // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
-            const asesores = [...new Set(allLeads.map(lead => {
-                const asesor = lead.asesor_asignado || lead.asesor || lead.usuario_asesor || lead.nombre || 'Sin Asignar';
-                console.log('Asesor encontrado:', asesor); // DEBUG
-                return asesor;
-            }))].sort();
-            
-            console.log('TODOS LOS ASESORES:', asesores); // DEBUG
+            // USAR CAMPO CORRECTO DEL ASESOR
+            const asesores = [...new Set(allLeads.map(lead => lead.Asesor_ID || 'Sin Asignar'))].sort();
             
             const select = document.getElementById('filter-advisor');
             
@@ -661,7 +642,7 @@
             const tbody = document.getElementById('leads-tbody');
             
             if (filteredLeads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="14" class="no-data">No hay leads que mostrar</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" class="no-data">No hay leads que mostrar</td></tr>';
                 return;
             }
             
@@ -698,35 +679,23 @@
         function aplicarFiltros() {
             const statusFilter = document.getElementById('filter-status').value;
             const advisorFilter = document.getElementById('filter-advisor').value;
-            const priorityFilter = document.getElementById('filter-priority').value;
             const dateFromFilter = document.getElementById('filter-date-from').value;
             const dateToFilter = document.getElementById('filter-date-to').value;
-            
-            console.log('FILTROS APLICADOS:');
-            console.log('Asesor seleccionado:', advisorFilter);
-            console.log('Primer lead asesor real:', allLeads[0] ? (allLeads[0].asesor_asignado || allLeads[0].asesor || allLeads[0].usuario_asesor || allLeads[0].nombre) : 'No hay leads');
             
             filteredLeads = allLeads.filter(lead => {
                 let incluir = true;
                 
-                if (statusFilter && (lead.estado || 'Nuevo') !== statusFilter) incluir = false;
-                
-                if (advisorFilter) {
-                    const leadAsesor = lead.asesor_asignado || lead.asesor || lead.usuario_asesor || lead.nombre || 'Sin Asignar';
-                    console.log('Comparando:', advisorFilter, 'con', leadAsesor);
-                    if (leadAsesor !== advisorFilter) incluir = false;
-                }
-                
-                if (priorityFilter && (lead.prioridad || 'Media') !== priorityFilter) incluir = false;
+                if (statusFilter && lead.Estado !== statusFilter) incluir = false;
+                if (advisorFilter && lead.Asesor_ID !== advisorFilter) incluir = false;
                 
                 if (dateFromFilter) {
-                    const leadDate = new Date(lead.fecha_creacion);
+                    const leadDate = new Date(lead.Fecha_Creacion);
                     const fromDate = new Date(dateFromFilter);
                     if (leadDate < fromDate) incluir = false;
                 }
                 
                 if (dateToFilter) {
-                    const leadDate = new Date(lead.fecha_creacion);
+                    const leadDate = new Date(lead.Fecha_Creacion);
                     const toDate = new Date(dateToFilter);
                     if (leadDate > toDate) incluir = false;
                 }
@@ -734,14 +703,12 @@
                 return incluir;
             });
             
-            console.log('Leads filtrados:', filteredLeads.length);
             mostrarLeads();
         }
 
         function limpiarFiltros() {
             document.getElementById('filter-status').value = '';
             document.getElementById('filter-advisor').value = '';
-            document.getElementById('filter-priority').value = '';
             document.getElementById('filter-date-from').value = '';
             document.getElementById('filter-date-to').value = '';
             
@@ -750,13 +717,13 @@
         }
 
         function actualizarDatos() {
-            document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="14" class="loading">Actualizando datos...</td></tr>';
+            document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="13" class="loading">Actualizando datos...</td></tr>';
             cargarLeadsDesdeAPI();
         }
 
         function mostrarError(mensaje) {
             const tbody = document.getElementById('leads-tbody');
-            tbody.innerHTML = `<tr><td colspan="14" class="error-message">${mensaje}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="13" class="error-message">${mensaje}</td></tr>`;
         }
 
         // INICIALIZACIÓN - TU CÓDIGO ORIGINAL

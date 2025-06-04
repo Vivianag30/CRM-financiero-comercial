@@ -647,43 +647,42 @@
             });
         }
 
-        function mostrarLeads() {
+           function mostrarLeads() {
             const tbody = document.getElementById('leads-tbody');
-            
+    
             if (filteredLeads.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="13" class="no-data">No hay leads que mostrar</td></tr>';
-                return;
-            }
-            
-            const leadsHtml = filteredLeads.map(lead => {
-                const fechaCreacion = lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString() : 'N/A';
-                const fechaCita = lead.fecha_cita ? new Date(lead.fecha_cita).toLocaleDateString() : 'N/A';
-                const horaCita = lead.hora_cita || 'N/A';
-                const ubicacionCita = lead.ubicacion_cita || 'N/A';
-                const valor = parseFloat(lead.valor_estimado) || 0;
-                
-                return `
-                    <tr>
-                        <td>${lead.id || 'N/A'}</td>
-                        <td>${lead.nombre_cliente || 'N/A'}</td>
-                        <td>${lead.empresa_cliente || 'N/A'}</td>
-                        <td>${lead.telefono || 'N/A'}</td>
-                        <td>${lead.email || 'N/A'}</td>
-                        <td>${lead.tipo_producto || 'N/A'}</td>
-                        <td>${valor.toLocaleString()}</td>
-                        <td><span class="status-badge status-${(lead.estado || 'nuevo').toLowerCase().replace(' ', '')}">${lead.estado || 'Nuevo'}</span></td>
-                        <td><span class="priority-${(lead.prioridad || 'media').toLowerCase()}">${lead.prioridad || 'Media'}</span></td>
-                        <td>${lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'}</td>
-                        <td>${fechaCreacion}</td>
-                        <td>${fechaCita}</td>
-                        <td>${horaCita}</td>
-                        <td>${ubicacionCita}</td>
-                    </tr>
-                `;
-            }).join('');
-            
-            tbody.innerHTML = leadsHtml;
+            tbody.innerHTML = '<tr><td colspan="13" class="no-data">No hay leads que mostrar</td></tr>';
+            return;
         }
+    
+        const leadsHtml = filteredLeads.map(lead => {
+        const fechaCreacion = lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'N/A';
+        const fechaCita = lead.fechaCita ? new Date(lead.fechaCita).toLocaleDateString() : 'N/A';
+        const horaCita = lead.horaCita ? new Date(lead.horaCita).toLocaleTimeString() : 'N/A';
+        const ubicacionCita = lead.lugarCita || 'N/A';
+        const valor = parseFloat(lead.monto) || 0;
+        
+        return `
+            <tr>
+                <td>${lead.id || 'N/A'}</td>
+                <td>${lead.nombre || 'N/A'}</td>
+                <td>${lead.email || 'N/A'}</td>
+                <td>${lead.telefono || 'N/A'}</td>
+                <td>${lead.plan || 'N/A'}</td>
+                <td>$${valor.toLocaleString()}</td>
+                <td><span class="status-badge status-${(lead.estado || 'nuevos').toLowerCase().replace(' ', '').replace('ñ','n')}">${lead.estado || 'NUEVOS'}</span></td>
+                <td>${lead.asesor || 'Sin Asignar'}</td>
+                <td>${fechaCreacion}</td>
+                <td>${fechaCita}</td>
+                <td>${horaCita}</td>
+                <td>${ubicacionCita}</td>
+                <td>${lead.observaciones || 'N/A'}</td>
+            </tr>
+        `;
+    }).join('');
+    
+    tbody.innerHTML = leadsHtml;
+}
 
         function aplicarFiltros() {
             const statusFilter = document.getElementById('filter-status').value;

@@ -486,6 +486,7 @@
             // Crear función callback global
             window[callbackName] = function(response) {
                 console.log('Respuesta recibida del servidor:', response);
+                console.log('PRIMER LEAD PARA DEBUG:', response.data?.[0]); // DEBUG AÑADIDO
                 
                 if (response && response.success && response.data) {
                     allLeads = response.data;
@@ -669,15 +670,15 @@
                 
                 return `
                     <tr>
-                        <td>${lead.id}</td>
-                        <td>${lead.nombre_cliente}</td>
+                        <td>${lead.id || 'N/A'}</td>
+                        <td>${lead.nombre_cliente || 'N/A'}</td>
                         <td>${lead.empresa_cliente || 'N/A'}</td>
-                        <td>${lead.telefono}</td>
-                        <td>${lead.email}</td>
-                        <td>${lead.tipo_producto}</td>
-                        <td>$${valor.toLocaleString()}</td>
-                        <td><span class="status-badge status-${lead.estado.toLowerCase().replace(' ', '')}">${lead.estado}</span></td>
-                        <td><span class="priority-${lead.prioridad.toLowerCase()}">${lead.prioridad}</span></td>
+                        <td>${lead.telefono || 'N/A'}</td>
+                        <td>${lead.email || 'N/A'}</td>
+                        <td>${lead.tipo_producto || 'N/A'}</td>
+                        <td>${valor.toLocaleString()}</td>
+                        <td><span class="status-badge status-${(lead.estado || 'nuevo').toLowerCase().replace(' ', '')}">${lead.estado || 'Nuevo'}</span></td>
+                        <td><span class="priority-${(lead.prioridad || 'media').toLowerCase()}">${lead.prioridad || 'Media'}</span></td>
                         <td>${lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'}</td>
                         <td>${fechaCreacion}</td>
                         <td>${fechaCita}</td>

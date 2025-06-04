@@ -361,7 +361,7 @@
                 <div class="metric-description">Valor total estimado</div>
             </div>
 
-            <div class="metric-card"> onclick="filtrarPorEstado('CERRADOS')">
+            <div class="metric-card" onclick="filtrarPorEstado('CERRADOS')">
                 <h3>✅ CERRADOS</h3>
                 <div class="metric-value" id="closed-leads">0</div>
                 <div class="metric-description">Ventas exitosas</div>
@@ -731,15 +731,26 @@
             const tbody = document.getElementById('leads-tbody');
             tbody.innerHTML = `<tr><td colspan="13" class="error-message">${mensaje}</td></tr>`;
         }
+      
         function filtrarPorEstado(estado) {
+            console.log('🔍 Filtrando por estado:', estado);
+    
             // Actualizar el filtro select
             document.getElementById('filter-status').value = estado;
-            
-            // Aplicar filtro
-            aplicarFiltros();
     
-            console.log(`Filtrando por estado: ${estado}`);
+              // HACER EL FILTRADO REAL
+                if (estado === 'CERRADOS') {
+                filteredLeads = allLeads.filter(lead => lead.estado === 'CERRADOS');
+                } else {
+            filteredLeads = allLeads.filter(lead => lead.estado === estado);
         }
+    
+    console.log('📊 Leads filtrados:', filteredLeads.length);
+    console.log('📋 Leads encontrados:', filteredLeads);
+    
+    // Mostrar los leads filtrados
+    mostrarLeads();
+}
         // INICIALIZACIÓN - TU CÓDIGO ORIGINAL
         function inicializarDashboard() {
             console.log('Inicializando dashboard gerencial...');

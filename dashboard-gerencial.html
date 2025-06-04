@@ -361,7 +361,7 @@
                 <div class="metric-description">Valor total estimado</div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card"> onclick="filtrarPorEstado('CERRADOS')">
                 <h3>✅ CERRADOS</h3>
                 <div class="metric-value" id="closed-leads">0</div>
                 <div class="metric-description">Ventas exitosas</div>
@@ -552,21 +552,19 @@
             mostrarLeads();
         }
 
-        function actualizarMetricas() {
+       function actualizarMetricas() {
             const totalLeads = allLeads.length;
             const totalPipeline = allLeads.reduce((sum, lead) => {
-                const valor = parseFloat(lead.valor_estimado) || 0;
+                const valor = parseFloat(lead.monto) || 0;
                 return sum + valor;
             }, 0);
-            const closedLeads = allLeads.filter(lead => lead.estado === 'Cerrado').length;
-            
-            // VERIFICAR MÚLTIPLES CAMPOS DE ASESOR
-            const activeAdvisors = [...new Set(allLeads.map(lead => 
-                lead.asesor_asignado || lead.asesor || lead.usuario_asesor || 'Sin Asignar'
-            ))].length;
+            const closedLeads = allLeads.filter(lead => lead.estado === 'CERRADOS').length;
+    
+            // USAR CAMPO CORRECTO DEL ASESOR
+            const activeAdvisors = [...new Set(allLeads.map(lead => lead.asesor || 'Sin Asignar'))].length;
 
             document.getElementById('total-leads').textContent = totalLeads;
-            document.getElementById('pipeline-value').textContent = `${totalPipeline.toLocaleString()}`;
+            document.getElementById('pipeline-value').textContent = `$${totalPipeline.toLocaleString()}`;
             document.getElementById('closed-leads').textContent = closedLeads;
             document.getElementById('active-advisors').textContent = activeAdvisors;
         }
@@ -733,7 +731,15 @@
             const tbody = document.getElementById('leads-tbody');
             tbody.innerHTML = `<tr><td colspan="13" class="error-message">${mensaje}</td></tr>`;
         }
-
+        function filtrarPorEstado(estado) {
+            // Actualizar el filtro select
+            document.getElementById('filter-status').value = estado;
+            
+            // Aplicar filtro
+            aplicarFiltros();
+    
+            console.log(`Filtrando por estado: ${estado}`);
+        }
         // INICIALIZACIÓN - TU CÓDIGO ORIGINAL
         function inicializarDashboard() {
             console.log('Inicializando dashboard gerencial...');

@@ -630,7 +630,7 @@
 
         function poblarFiltroAsesores() {
             // USAR CAMPO CORRECTO DEL ASESOR
-            const asesores = [...new Set(allLeads.map(lead => lead.Asesor_ID || 'Sin Asignar'))].sort();
+            const asesores = [...new Set(allLeads.map(lead => lead.asesor || 'Sin Asignar'))].sort();
             
             const select = document.getElementById('filter-advisor');
             
@@ -694,17 +694,17 @@
             filteredLeads = allLeads.filter(lead => {
                 let incluir = true;
                 
-                if (statusFilter && lead.Estado !== statusFilter) incluir = false;
-                if (advisorFilter && lead.Asesor_ID !== advisorFilter) incluir = false;
+                if (statusFilter && lead.estado !== statusFilter) incluir = false;
+                if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
                 
                 if (dateFromFilter) {
-                    const leadDate = new Date(lead.Fecha_Creacion);
+                    const leadDate = new Date(lead.fechaCreacion);
                     const fromDate = new Date(dateFromFilter);
                     if (leadDate < fromDate) incluir = false;
                 }
                 
                 if (dateToFilter) {
-                    const leadDate = new Date(lead.Fecha_Creacion);
+                    const leadDate = new Date(lead.fechaCreacion);
                     const toDate = new Date(dateToFilter);
                     if (leadDate > toDate) incluir = false;
                 }

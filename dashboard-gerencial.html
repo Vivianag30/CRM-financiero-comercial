@@ -722,7 +722,7 @@ const fechaCita = lead.fechaCita ? (() => {
         
 if (dateFromFilter && lead.fechaCita) {
     const leadDate = new Date(lead.fechaCita);
-    leadDate.setMinutes(leadDate.getMinutes() + leadDate.getTimezoneOffset());
+    leadDate.setMinutes(leadDate.getMinutes() - leadDate.getTimezoneOffset()); // ✅ CAMBIAR + por -
     
     const fromDate = new Date(dateFromFilter);
     
@@ -737,12 +737,12 @@ if (dateFromFilter && lead.fechaCita) {
 
 if (dateToFilter && lead.fechaCita) {
     const leadDate = new Date(lead.fechaCita);
-    leadDate.setMinutes(leadDate.getMinutes() + leadDate.getTimezoneOffset());
+    leadDate.setMinutes(leadDate.getMinutes() - leadDate.getTimezoneOffset()); // ✅ CAMBIAR + por -
     
     const toDate = new Date(dateToFilter);
     
     // Comparar solo las fechas (sin hora)
-    leadDate.setHours(0, 0, 0, 0);C
+    leadDate.setHours(0, 0, 0, 0);
     toDate.setHours(23, 59, 59, 999);
     
     console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} <= ${toDate.toLocaleDateString()}`);

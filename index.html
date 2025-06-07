@@ -317,19 +317,19 @@ function realizarLogin() {
                 datos: usuario,
                 timestamp: new Date().getTime()
             };
-            sessionStorage.setItem('crm_sesion', JSON.stringify(sesion));
+            sessionStorage.setItem('sesionCRM', JSON.stringify(sesion));
             console.log('💾 Sesión guardada');
         } catch (e) {
             console.log('⚠️ SessionStorage no disponible');
         }
         
         // Redirigir según tipo de usuario
-        setTimeout(() => {
-            if (usuario.tipo === 'GERENTE') {
-                alert(`¡Bienvenida ${usuario.nombre}!\n\n🎯 Tipo: ${usuario.tipo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard Gerencial...`);
-            } else {
-                alert(`¡Bienvenido ${usuario.nombre}!\n\n🎯 Cargo: ${usuario.cargo}\n📧 Email: ${usuario.email}\n📱 Teléfono: ${usuario.telefono}\n\n✅ Login funcionando correctamente!\n🚀 Redirigiendo al Dashboard de Asesor...`);
-            }
+       // Redirigir inmediatamente según tipo de usuario
+if (usuario.tipo === 'GERENTE') {
+    window.location.href = './dashboard-gerencial.html';
+} else {
+    window.location.href = './dashboard-asesor.html';
+}
             
             // Auto-redirect con countdown visual
             mostrarLoading(false);

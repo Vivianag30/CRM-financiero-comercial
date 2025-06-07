@@ -654,15 +654,15 @@
         }
     
         const leadsHtml = filteredLeads.map(lead => {
-       const fechaCreacion = lead.fechaCreacion ? (() => {
+const fechaCreacion = lead.fechaCreacion ? (() => {
     const fecha = new Date(lead.fechaCreacion);
-    fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+    fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset()); // ✅
     return fecha.toLocaleDateString();
 })() : 'N/A';
-       const fechaCita = lead.fechaCita ? (() => {
+
+const fechaCita = lead.fechaCita ? (() => {
     const fecha = new Date(lead.fechaCita);
-    // Corregir zona horaria sumando offset
-    fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+    fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset()); // ✅
     return fecha.toLocaleDateString();
 })() : 'N/A';
         const horaCita = lead.horaCita ? new Date(lead.horaCita).toLocaleTimeString() : 'N/A';
@@ -742,7 +742,7 @@ if (dateToFilter && lead.fechaCita) {
     const toDate = new Date(dateToFilter);
     
     // Comparar solo las fechas (sin hora)
-    leadDate.setHours(0, 0, 0, 0);
+    leadDate.setHours(0, 0, 0, 0);C
     toDate.setHours(23, 59, 59, 999);
     
     console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} <= ${toDate.toLocaleDateString()}`);

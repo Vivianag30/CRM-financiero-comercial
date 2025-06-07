@@ -691,12 +691,20 @@
     tbody.innerHTML = leadsHtml;
 }
 
-       function aplicarFiltros() {
+     function aplicarFiltros() {
     const statusFilter = document.getElementById('filter-status').value;
     const advisorFilter = document.getElementById('filter-advisor').value;
     const dateFromFilter = document.getElementById('filter-date-from').value;
     const dateToFilter = document.getElementById('filter-date-to').value;
     
+    // DEBUG CRÍTICO
+    console.log('🔍 VALORES RAW DE LOS INPUTS:');
+    console.log('dateFromFilter RAW:', dateFromFilter);
+    console.log('dateToFilter RAW:', dateToFilter);
+    console.log('Input Desde element:', document.getElementById('filter-date-from'));
+    console.log('Input Hasta element:', document.getElementById('filter-date-to'));
+    
+    // resto del código...
     console.log('🔍 FILTROS APLICADOS:');
     console.log('Desde:', dateFromFilter);
     console.log('Hasta:', dateToFilter);

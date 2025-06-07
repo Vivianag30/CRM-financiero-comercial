@@ -695,16 +695,16 @@
                 if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
                 
                 if (dateFromFilter) {
-                    const leadDate = new Date(lead.fechaCreacion);
+                    const leadDate = new Date(lead.fechaCita); 
                     const fromDate = new Date(dateFromFilter);
                     if (leadDate < fromDate) incluir = false;
                 }
-                
+    
                 if (dateToFilter) {
-                    const leadDate = new Date(lead.fechaCreacion);
+                    const leadDate = new Date(lead.fechaCita); 
                     const toDate = new Date(dateToFilter);
                     if (leadDate > toDate) incluir = false;
-                }
+                }    
                 
                 return incluir;
             });

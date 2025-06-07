@@ -721,21 +721,29 @@ const fechaCita = lead.fechaCita ? (() => {
         if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
         
 if (dateFromFilter && lead.fechaCita) {
-    const leadDateStr = new Date(lead.fechaCita).toISOString().split('T')[0]; // "2025-06-10"
-    const filterDateStr = new Date(dateFromFilter).toISOString().split('T')[0]; // "2025-06-10"
+    // Leer fecha del input correctamente
+    const inputDate = new Date(dateFromFilter + 'T00:00:00'); // Forzar medianoche local
+    const leadDate = new Date(lead.fechaCita);
     
-    console.log(`Comparando SIMPLE: ${leadDateStr} >= ${filterDateStr}`);
+    const inputDateStr = inputDate.toLocaleDateString();
+    const leadDateStr = leadDate.toLocaleDateString();
     
-    if (leadDateStr < filterDateStr) incluir = false;
+    console.log(`Comparando CORRECTO: ${leadDateStr} >= ${inputDateStr}`);
+    
+    if (leadDate < inputDate) incluir = false;
 }
 
 if (dateToFilter && lead.fechaCita) {
-    const leadDateStr = new Date(lead.fechaCita).toISOString().split('T')[0]; // "2025-06-10"
-    const filterDateStr = new Date(dateToFilter).toISOString().split('T')[0]; // "2025-06-14"
+    // Leer fecha del input correctamente
+    const inputDate = new Date(dateToFilter + 'T23:59:59'); // Forzar final del día local
+    const leadDate = new Date(lead.fechaCita);
     
-    console.log(`Comparando SIMPLE: ${leadDateStr} <= ${filterDateStr}`);
+    const inputDateStr = inputDate.toLocaleDateString();
+    const leadDateStr = leadDate.toLocaleDateString();
     
-    if (leadDateStr > filterDateStr) incluir = false;
+    console.log(`Comparando CORRECTO: ${leadDateStr} <= ${inputDateStr}`);
+    
+    if (leadDate > inputDate) incluir = false;
 }
         
         console.log(`  ¿Incluir?: ${incluir}`);

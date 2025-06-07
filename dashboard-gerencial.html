@@ -660,10 +660,7 @@ const fechaCreacion = lead.fechaCreacion ? (() => {
     return fecha.toLocaleDateString();
 })() : 'N/A';
 
-const fechaCita = lead.fechaCita ? (() => {
-    const fecha = new Date(lead.fechaCita);
-    fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset()); // ✅
-    return fecha.toLocaleDateString();
+const fechaCita = lead.fechaCita ? new Date(lead.fechaCita).toLocaleDateString() : 'N/A';
 })() : 'N/A';
         const horaCita = lead.horaCita ? new Date(lead.horaCita).toLocaleTimeString() : 'N/A';
         const ubicacionCita = lead.lugarCita || 'N/A';

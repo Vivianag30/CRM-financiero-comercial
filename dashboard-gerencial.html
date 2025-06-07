@@ -694,17 +694,27 @@
                 if (statusFilter && lead.estado !== statusFilter) incluir = false;
                 if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
                 
-                if (dateFromFilter) {
-                    const leadDate = new Date(lead.fechaCita); 
-                    const fromDate = new Date(dateFromFilter);
-                    if (leadDate < fromDate) incluir = false;
-                }
+               if (dateFromFilter) {
+                 const leadDate = new Date(lead.fechaCita);
+                 const fromDate = new Date(dateFromFilter);
     
+            // Comparar solo las fechas (sin hora)
+                leadDate.setHours(0, 0, 0, 0);
+                fromDate.setHours(0, 0, 0, 0);
+    
+                if (leadDate < fromDate) incluir = false;
+                }
+
                 if (dateToFilter) {
-                    const leadDate = new Date(lead.fechaCita); 
-                    const toDate = new Date(dateToFilter);
-                    if (leadDate > toDate) incluir = false;
-                }    
+                const leadDate = new Date(lead.fechaCita);
+                const toDate = new Date(dateToFilter);
+    
+                // Comparar solo las fechas (sin hora)
+                leadDate.setHours(0, 0, 0, 0);
+                toDate.setHours(23, 59, 59, 999); // Final del día
+    
+                  if (leadDate > toDate) incluir = false;
+                }
                 
                 return incluir;
             });

@@ -652,12 +652,7 @@
             tbody.innerHTML = '<tr><td colspan="13" class="no-data">No hay leads que mostrar</td></tr>';
             return;
         }
-    
-        const leadsHtml = filteredLeads.map(lead => {
-const fechaCreacion = lead.fechaCreacion ? (() => {
-    const fecha = new Date(lead.fechaCreacion);
-    fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset()); // ✅
-    return fecha.toLocaleDateString();
+
 
 const leadsHtml = filteredLeads.map(lead => {
 const fechaCreacion = lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'N/A';

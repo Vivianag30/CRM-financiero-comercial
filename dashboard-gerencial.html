@@ -682,44 +682,53 @@
     tbody.innerHTML = leadsHtml;
 }
 
-        function aplicarFiltros() {
-            const statusFilter = document.getElementById('filter-status').value;
-            const advisorFilter = document.getElementById('filter-advisor').value;
-            const dateFromFilter = document.getElementById('filter-date-from').value;
-            const dateToFilter = document.getElementById('filter-date-to').value;
+       function aplicarFiltros() {
+    const statusFilter = document.getElementById('filter-status').value;
+    const advisorFilter = document.getElementById('filter-advisor').value;
+    const dateFromFilter = document.getElementById('filter-date-from').value;
+    const dateToFilter = document.getElementById('filter-date-to').value;
+    
+    console.log('🔍 FILTROS APLICADOS:');
+    console.log('Desde:', dateFromFilter);
+    console.log('Hasta:', dateToFilter);
+    
+    filteredLeads = allLeads.filter(lead => {
+        let incluir = true;
+        
+        // DEBUG: Ver fechas de cada lead
+        console.log(`📅 Lead ${lead.nombre}:`);
+        console.log('  fechaCita raw:', lead.fechaCita);
+        console.log('  fechaCita parsed:', lead.fechaCita ? new Date(lead.fechaCita) : 'UNDEFINED');
+        
+        if (statusFilter && lead.estado !== statusFilter) incluir = false;
+        if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
+        
+        if (dateFromFilter && lead.fechaCita) {
+            const leadDate = new Date(lead.fechaCita);
+            const fromDate = new Date(dateFromFilter);
             
-            filteredLeads = allLeads.filter(lead => {
-                let incluir = true;
-                
-                if (statusFilter && lead.estado !== statusFilter) incluir = false;
-                if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
-                
-               if (dateFromFilter) {
-                 const leadDate = new Date(lead.fechaCita);
-                 const fromDate = new Date(dateFromFilter);
+            console.log(`  Comparando: ${leadDate.toLocaleDateString()} >= ${fromDate.toLocaleDateString()}`);
+            
+            if (leadDate < fromDate) incluir = false;
+        }
+        
+        if (dateToFilter && lead.fechaCita) {
+            const leadDate = new Date(lead.fechaCita);
+            const toDate = new Date(dateToFilter);
+            toDate.setHours(23, 59, 59, 999);
+            
+            console.log(`  Comparando: ${leadDate.toLocaleDateString()} <= ${toDate.toLocaleDateString()}`);
+            
+            if (leadDate > toDate) incluir = false;
+        }
+        
+        console.log(`  ¿Incluir?: ${incluir}`);
+        
+        return incluir;
+    });
     
-            // Comparar solo las fechas (sin hora)
-                leadDate.setHours(0, 0, 0, 0);
-                fromDate.setHours(0, 0, 0, 0);
-    
-                if (leadDate < fromDate) incluir = false;
-                }
+    mostrarLeads();
 
-                if (dateToFilter) {
-                const leadDate = new Date(lead.fechaCita);
-                const toDate = new Date(dateToFilter);
-    
-                // Comparar solo las fechas (sin hora)
-                leadDate.setHours(0, 0, 0, 0);
-                toDate.setHours(23, 59, 59, 999); // Final del día
-    
-                  if (leadDate > toDate) incluir = false;
-                }
-                
-                return incluir;
-            });
-            
-            mostrarLeads();
         }
 
         function limpiarFiltros() {

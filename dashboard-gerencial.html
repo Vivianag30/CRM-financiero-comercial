@@ -713,31 +713,33 @@
         if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
         
 if (dateFromFilter && lead.fechaCita) {
-    const fechaCitaStr = lead.fechaCita ? (() => {
-        const fecha = new Date(lead.fechaCita);
-        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
-        return fecha.toLocaleDateString();
-    })() : '';
+    const leadDate = new Date(lead.fechaCita);
+    leadDate.setMinutes(leadDate.getMinutes() + leadDate.getTimezoneOffset());
     
-    const filtroStr = new Date(dateFromFilter).toLocaleDateString();
+    const fromDate = new Date(dateFromFilter);
     
-    console.log(`Comparando: ${fechaCitaStr} >= ${filtroStr}`);
+    // Comparar solo las fechas (sin hora)
+    leadDate.setHours(0, 0, 0, 0);
+    fromDate.setHours(0, 0, 0, 0);
     
-    if (fechaCitaStr < filtroStr) incluir = false;
+    console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} >= ${fromDate.toLocaleDateString()}`);
+    
+    if (leadDate < fromDate) incluir = false;
 }
 
 if (dateToFilter && lead.fechaCita) {
-    const fechaCitaStr = lead.fechaCita ? (() => {
-        const fecha = new Date(lead.fechaCita);
-        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
-        return fecha.toLocaleDateString();
-    })() : '';
+    const leadDate = new Date(lead.fechaCita);
+    leadDate.setMinutes(leadDate.getMinutes() + leadDate.getTimezoneOffset());
     
-    const filtroStr = new Date(dateToFilter).toLocaleDateString();
+    const toDate = new Date(dateToFilter);
     
-    console.log(`Comparando: ${fechaCitaStr} <= ${filtroStr}`);
+    // Comparar solo las fechas (sin hora)
+    leadDate.setHours(0, 0, 0, 0);
+    toDate.setHours(23, 59, 59, 999);
     
-    if (fechaCitaStr > filtroStr) incluir = false;
+    console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} <= ${toDate.toLocaleDateString()}`);
+    
+    if (leadDate > toDate) incluir = false;
 }
         
         console.log(`  ¿Incluir?: ${incluir}`);

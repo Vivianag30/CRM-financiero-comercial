@@ -721,33 +721,21 @@ const fechaCita = lead.fechaCita ? (() => {
         if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
         
 if (dateFromFilter && lead.fechaCita) {
-    const leadDate = new Date(lead.fechaCita);
-    leadDate.setMinutes(leadDate.getMinutes() - leadDate.getTimezoneOffset()); // ✅ CAMBIAR + por -
+    const leadDateStr = new Date(lead.fechaCita).toISOString().split('T')[0]; // "2025-06-10"
+    const filterDateStr = new Date(dateFromFilter).toISOString().split('T')[0]; // "2025-06-10"
     
-    const fromDate = new Date(dateFromFilter);
+    console.log(`Comparando SIMPLE: ${leadDateStr} >= ${filterDateStr}`);
     
-    // Comparar solo las fechas (sin hora)
-    leadDate.setHours(0, 0, 0, 0);
-    fromDate.setHours(0, 0, 0, 0);
-    
-    console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} >= ${fromDate.toLocaleDateString()}`);
-    
-    if (leadDate < fromDate) incluir = false;
+    if (leadDateStr < filterDateStr) incluir = false;
 }
 
 if (dateToFilter && lead.fechaCita) {
-    const leadDate = new Date(lead.fechaCita);
-    leadDate.setMinutes(leadDate.getMinutes() - leadDate.getTimezoneOffset()); // ✅ CAMBIAR + por -
+    const leadDateStr = new Date(lead.fechaCita).toISOString().split('T')[0]; // "2025-06-10"
+    const filterDateStr = new Date(dateToFilter).toISOString().split('T')[0]; // "2025-06-14"
     
-    const toDate = new Date(dateToFilter);
+    console.log(`Comparando SIMPLE: ${leadDateStr} <= ${filterDateStr}`);
     
-    // Comparar solo las fechas (sin hora)
-    leadDate.setHours(0, 0, 0, 0);
-    toDate.setHours(23, 59, 59, 999);
-    
-    console.log(`Comparando fechas: ${leadDate.toLocaleDateString()} <= ${toDate.toLocaleDateString()}`);
-    
-    if (leadDate > toDate) incluir = false;
+    if (leadDateStr > filterDateStr) incluir = false;
 }
         
         console.log(`  ¿Incluir?: ${incluir}`);

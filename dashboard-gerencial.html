@@ -713,35 +713,31 @@
         if (advisorFilter && lead.asesor !== advisorFilter) incluir = false;
         
 if (dateFromFilter && lead.fechaCita) {
-    const leadDate = new Date(lead.fechaCita);
-    const fromDate = new Date(dateFromFilter);
+    const fechaCitaStr = lead.fechaCita ? (() => {
+        const fecha = new Date(lead.fechaCita);
+        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+        return fecha.toLocaleDateString();
+    })() : '';
     
-    // Comparar solo día, mes y año
-    const leadDateOnly = leadDate.getFullYear() + '-' + 
-                        (leadDate.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                        leadDate.getDate().toString().padStart(2, '0');
+    const filtroStr = new Date(dateFromFilter).toLocaleDateString();
     
-    const fromDateOnly = fromDate.getFullYear() + '-' + 
-                        (fromDate.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                        fromDate.getDate().toString().padStart(2, '0');
+    console.log(`Comparando: ${fechaCitaStr} >= ${filtroStr}`);
     
-    if (leadDateOnly < fromDateOnly) incluir = false;
+    if (fechaCitaStr < filtroStr) incluir = false;
 }
 
 if (dateToFilter && lead.fechaCita) {
-    const leadDate = new Date(lead.fechaCita);
-    const toDate = new Date(dateToFilter);
+    const fechaCitaStr = lead.fechaCita ? (() => {
+        const fecha = new Date(lead.fechaCita);
+        fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+        return fecha.toLocaleDateString();
+    })() : '';
     
-    // Comparar solo día, mes y año
-    const leadDateOnly = leadDate.getFullYear() + '-' + 
-                        (leadDate.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                        leadDate.getDate().toString().padStart(2, '0');
+    const filtroStr = new Date(dateToFilter).toLocaleDateString();
     
-    const toDateOnly = toDate.getFullYear() + '-' + 
-                      (toDate.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                      toDate.getDate().toString().padStart(2, '0');
+    console.log(`Comparando: ${fechaCitaStr} <= ${filtroStr}`);
     
-    if (leadDateOnly > toDateOnly) incluir = false;
+    if (fechaCitaStr > filtroStr) incluir = false;
 }
         
         console.log(`  ¿Incluir?: ${incluir}`);

@@ -461,6 +461,43 @@
     </div>
 
     <script>
+
+    // ✅ AGREGAR AQUÍ LA VALIDACIÓN
+    function validarSesion() {
+        const sesion = sessionStorage.getItem('sesionCRM');
+        
+        if (!sesion) {
+            mostrarMensajeYRedirigir();
+            return false;
+        }
+        
+        try {
+            const datosSession = JSON.parse(sesion);
+            if (datosSession.tipo !== 'GERENTE') {
+                mostrarMensajeYRedirigir();
+                return false;
+            }
+            return true;
+        } catch(e) {
+            mostrarMensajeYRedirigir();
+            return false;
+        }
+    }
+
+    function mostrarMensajeYRedirigir() {
+        alert('Sesión expirada. Será redirigido al login.');
+        window.location.href = './index.html';
+    }
+
+
+}
+        
+    // Validar antes de cargar anything
+    if (!validarSesion()) {
+        // No continuar si no hay sesión
+    } else {
+        // Tu código existente va aquí...
+
         // Variables globales
         let allLeads = [];
         let filteredLeads = [];
@@ -468,6 +505,7 @@
         // SOLO AGREGAR FUNCIÓN CERRAR SESIÓN
         function cerrarSesion() {
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                sessionStorage.removeItem('sesionCRM'); // ✅ AGREGAR ESTA LÍNEA
                 window.location.href = './index.html';
             }
         }

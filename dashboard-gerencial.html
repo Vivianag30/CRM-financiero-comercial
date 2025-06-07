@@ -654,8 +654,17 @@
         }
     
         const leadsHtml = filteredLeads.map(lead => {
-        const fechaCreacion = lead.fechaCreacion ? new Date(lead.fechaCreacion).toLocaleDateString() : 'N/A';
-        const fechaCita = lead.fechaCita ? new Date(lead.fechaCita).toLocaleDateString() : 'N/A';
+       const fechaCreacion = lead.fechaCreacion ? (() => {
+    const fecha = new Date(lead.fechaCreacion);
+    fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+    return fecha.toLocaleDateString();
+})() : 'N/A';
+       const fechaCita = lead.fechaCita ? (() => {
+    const fecha = new Date(lead.fechaCita);
+    // Corregir zona horaria sumando offset
+    fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+    return fecha.toLocaleDateString();
+})() : 'N/A';
         const horaCita = lead.horaCita ? new Date(lead.horaCita).toLocaleTimeString() : 'N/A';
         const ubicacionCita = lead.lugarCita || 'N/A';
         const valor = parseFloat(lead.monto) || 0;

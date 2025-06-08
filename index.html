@@ -230,12 +230,16 @@
             }
         };
 
-        // Función para completar usuario automáticamente
-        function completarUsuario(usuario, password) {
-            document.getElementById('username').value = usuario;
-            document.getElementById('password').value = password;
-        }
-
+       // Función para completar usuario automáticamente
+function completarUsuario(username) {
+    const usuario = usuarios[username];
+    if (usuario) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = usuario.password;
+        // Opcional: enfocar el botón de login
+        document.getElementById('password').focus();
+    }
+}
         // Función para mostrar mensaje
         function mostrarMensaje(mensaje, tipo) {
             const messageElement = document.getElementById('message');

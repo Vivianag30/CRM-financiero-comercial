@@ -310,33 +310,7 @@ function realizarLogin() {
             return;
         }
         
-        // Login exitoso
-        console.log('✅ Login exitoso para:', usuario.nombre);
-        mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
-        
-        // Guardar sesión
-        try {
-            const sesion = {
-                usuario: username,
-                tipo: usuario.tipo,
-                datos: usuario,
-                timestamp: new Date().getTime()
-            };
-            sessionStorage.setItem('sesionCRM', JSON.stringify(sesion));
-            console.log('💾 Sesión guardada');
-        } catch (e) {
-            console.log('⚠️ SessionStorage no disponible');
-        }
-        
-        // Redirigir según tipo de usuario
-       // Redirigir inmediatamente según tipo de usuario
-if (usuario.tipo === 'GERENTE') {
-    window.location.href = './dashboard-gerencial.html';
-} else {
-    window.location.href = './dashboard-asesor.html';
-}
-            
-            // Login exitoso
+// Login exitoso
 console.log('✅ Login exitoso para:', usuario.nombre);
 mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
 
@@ -355,11 +329,28 @@ if (usuario.tipo === 'GERENTE') {
     window.location.href = './dashboard_asesor_funcional.html';
 }
             
-        }, 2000);
+            // Login exitoso
+console.log('✅ Login exitoso para:', usuario.nombre);
+mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+
+// Guardar sesión
+sessionStorage.setItem('sesionCRM', JSON.stringify({
+    usuario: username,
+    tipo: usuario.tipo,
+    datos: usuario,
+    timestamp: new Date().getTime()
+}));
+
+// Redirigir inmediatamente según tipo de usuario
+        if (usuario.tipo === 'GERENTE') {
+            window.location.href = './dashboard-gerencial.html';
+        } else {
+            window.location.href = './dashboard_asesor_funcional.html';
+        }
         
+        }, 2000);
     }, 1000);
 }
-
 // Event listener para Enter
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {

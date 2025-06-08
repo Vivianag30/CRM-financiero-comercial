@@ -317,7 +317,7 @@ function realizarLogin() {
                 datos: usuario,
                 timestamp: new Date().getTime()
             };
-            sessionStorage.setItem('sesionCRM', JSON.stringify(sesion));
+            sessionStorage.setItem('crm_session', JSON.stringify(sesion));
             console.log('💾 Sesión guardada');
         } catch (e) {
             console.log('⚠️ SessionStorage no disponible');

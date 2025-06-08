@@ -505,7 +505,6 @@
         // SOLO AGREGAR FUNCIÓN CERRAR SESIÓN
         function cerrarSesion() {
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                sessionStorage.removeItem('sesionCRM'); // ✅ AGREGAR ESTA LÍNEA
                 window.location.href = './index.html';
             }
         }

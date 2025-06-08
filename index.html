@@ -269,7 +269,7 @@ function completarUsuario(username) {
             }
         }
 
-    // Función principal de login
+// Función principal de login
 function realizarLogin() {
     console.log('🚀 Botón clickeado - Iniciando login...');
     
@@ -310,44 +310,26 @@ function realizarLogin() {
             return;
         }
         
-// Login exitoso
-console.log('✅ Login exitoso para:', usuario.nombre);
-mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
-
-// Guardar sesión
-sessionStorage.setItem('sesionCRM', JSON.stringify({
-    usuario: username,
-    tipo: usuario.tipo,
-    datos: usuario,
-    timestamp: new Date().getTime()
-}));
-
-// Redirigir inmediatamente
-if (usuario.tipo === 'GERENTE') {
-    window.location.href = './dashboard-gerencial.html';
-} else {
-    window.location.href = './dashboard_asesor_funcional.html';
-}
-            
-            // Login exitoso
-console.log('✅ Login exitoso para:', usuario.nombre);
-mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
-
-// Guardar sesión
-sessionStorage.setItem('sesionCRM', JSON.stringify({
-    usuario: username,
-    tipo: usuario.tipo,
-    datos: usuario,
-    timestamp: new Date().getTime()
-}));
-
-// Redirigir inmediatamente según tipo de usuario
+        // Login exitoso
+        console.log('✅ Login exitoso para:', usuario.nombre);
+        mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+        
+        // Guardar sesión
+        sessionStorage.setItem('sesionCRM', JSON.stringify({
+            usuario: username,
+            tipo: usuario.tipo,
+            datos: usuario,
+            timestamp: new Date().getTime()
+        }));
+        
+        // Redirigir inmediatamente
         if (usuario.tipo === 'GERENTE') {
             window.location.href = './dashboard-gerencial.html';
         } else {
             window.location.href = './dashboard_asesor_funcional.html';
         }
-     
+        
+    }, 1000);
 }
 // Event listener para Enter
 document.addEventListener('keypress', function(e) {

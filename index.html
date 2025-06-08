@@ -314,10 +314,11 @@ function realizarLogin() {
         try {
             const sesion = {
                 usuario: username,
+                tipo: usuario.tipo,
                 datos: usuario,
                 timestamp: new Date().getTime()
             };
-            sessionStorage.setItem('crm_session', JSON.stringify(sesion));
+            sessionStorage.setItem('sesionCRM', JSON.stringify(sesion));
             console.log('💾 Sesión guardada');
         } catch (e) {
             console.log('⚠️ SessionStorage no disponible');
@@ -331,25 +332,24 @@ if (usuario.tipo === 'GERENTE') {
     window.location.href = './dashboard-asesor.html';
 }
             
-            // Auto-redirect con countdown visual
-            mostrarLoading(false);
-            mostrarMensaje('¡Redirigiendo en 3 segundos...!', 'success');
-            
-            let countdown = 3;
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    mostrarMensaje(`¡Redirigiendo en ${countdown} segundos...!`, 'success');
-                } else {
-                    clearInterval(countdownInterval);
-                    // Redirección automática real
-                    if (usuario.tipo === 'GERENTE') {
-                        window.location.href = 'dashboard-gerencial.html';
-                    } else {
-                        window.location.href = 'dashboard_asesor_funcional.html';
-                    }
-                }
-            }, 1000);
+            // Login exitoso
+console.log('✅ Login exitoso para:', usuario.nombre);
+mostrarMensaje('¡Login exitoso! Bienvenido ' + usuario.nombre, 'success');
+
+// Guardar sesión
+sessionStorage.setItem('sesionCRM', JSON.stringify({
+    usuario: username,
+    tipo: usuario.tipo,
+    datos: usuario,
+    timestamp: new Date().getTime()
+}));
+
+// Redirigir inmediatamente
+if (usuario.tipo === 'GERENTE') {
+    window.location.href = './dashboard-gerencial.html';
+} else {
+    window.location.href = './dashboard_asesor_funcional.html';
+}
             
         }, 2000);
         

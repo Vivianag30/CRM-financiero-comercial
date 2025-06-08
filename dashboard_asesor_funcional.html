@@ -832,7 +832,7 @@
         // Función para obtener sesión del usuario
         function obtenerSesion() {
             try {
-                const sesion = sessionStorage.getItem('crm_sesion');
+                const sesion = sessionStorage.getItem('sesionCRM');
                 if (sesion) {
                     const sesionData = JSON.parse(sesion);
                     const ahora = new Date().getTime();
@@ -1523,7 +1523,7 @@ function guardarLeadEnGoogleSheets(datosLead) {
         // Función para cerrar sesión
         function cerrarSesion() {
             if (confirm('¿Está seguro que desea cerrar sesión?')) {
-                sessionStorage.removeItem('crm_sesion');
+                sessionStorage.removeItem('sesionCRM');
                 alert('Sesión cerrada. En producción redirigiría al login.');
                 // Comentado para evitar 404: window.location.href = 'login.html';
                 window.location.reload(); // Recargar la página en su lugar

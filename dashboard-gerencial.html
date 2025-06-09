@@ -568,7 +568,9 @@ if (!validarSesion()) {
         // TU CÓDIGO ORIGINAL - SIN CAMBIOS
         function procesarLeads() {
             console.log('Procesando leads:', allLeads);
-            
+            console.log('🔍 CAMPOS DEL PRIMER LEAD:', Object.keys(allLeads[0] || {}));
+            console.log('🔍 VALORES DEL PRIMER LEAD:', allLeads[0]);
+           
             if (!Array.isArray(allLeads)) {
                 console.error('Los datos no son un array:', allLeads);
                 mostrarError('Formato de datos inválido');

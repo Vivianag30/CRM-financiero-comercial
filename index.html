@@ -178,51 +178,115 @@
         
         <div class="message" id="message"></div>
 
-        <div class="demo-users">
-            <h4>👥 Usuarios de Prueba</h4>
-            <div><strong>Asesores:</strong></div>
-            <div onclick="completarUsuario('jose-luis', 'password123')">• jose-luis / password123 (Senior)</div>
-            <div onclick="completarUsuario('ana-rodriguez', 'password123')">• ana-rodriguez / password123 (Asesor)</div>
-            <div onclick="completarUsuario('carlos-mendez', 'password123')">• carlos-mendez / password123 (Junior)</div>
-            <div><strong>Gerente:</strong></div>
-            <div onclick="completarUsuario('maria-gonzalez', 'admin123')">• maria-gonzalez / admin123 (Gerencial)</div>
-        </div>
+      
     </div>
 
     <script>
         // Base de datos de usuarios
         const usuarios = {
-            'jose-luis': {
-                password: 'password123',
-                nombre: 'José Luis Martínez',
-                cargo: 'Senior',
-                email: 'jlmartinez@empresa.com',
-                telefono: '0998765432',
-                tipo: 'ASESOR',
-                estado: 'ACTIVO'
-            },
-            'ana-rodriguez': {
-                password: 'password123',
-                nombre: 'Ana Rodríguez López',
-                cargo: 'Asesor',
-                email: 'arodriguez@empresa.com',
-                telefono: '0987654321',
-                tipo: 'ASESOR',
-                estado: 'ACTIVO'
-            },
-            'carlos-mendez': {
-                password: 'password123',
-                nombre: 'Carlos Méndez Silva',
-                cargo: 'Junior',
-                email: 'cmendez@empresa.com',
-                telefono: '0976543210',
-                tipo: 'ASESOR',
-                estado: 'ACTIVO'
-            },
-            'maria-gonzalez': {
-                password: 'admin123',
-                nombre: 'María González',
-                cargo: 'Gerente General',
+         'fernando-zambrano': {
+        password: 'Ferglobal2025',
+        nombre: 'Fernando Zambrano',
+        cargo: 'Asesor Comercial',
+        email: 'fernando.zambrano@empresa.com',
+        telefono: '0987654321',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'giovanny-pozo': {
+        password: 'Visagp2933',
+        nombre: 'Giovanny Pozo',
+        cargo: 'Asesor Comercial',
+        email: 'giovanny.pozo@empresa.com',
+        telefono: '0987654322',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'wladimir-reinoso': {
+        password: 'Montufar1mh',
+        nombre: 'Wladimir Reinoso',
+        cargo: 'Asesor Comercial',
+        email: 'wladimir.reinoso@empresa.com',
+        telefono: '0987654323',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'edwin-morocho': {
+        password: 'Edwin.9985',
+        nombre: 'Edwin Morocho',
+        cargo: 'Asesor Comercial',
+        email: 'edwin.morocho@empresa.com',
+        telefono: '0987654324',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'fausto-castillo': {
+        password: 'Alana.2025',
+        nombre: 'Fausto Castillo',
+        cargo: 'Asesor Comercial',
+        email: 'fausto.castillo@empresa.com',
+        telefono: '0987654325',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'fabian-campaña': {
+        password: 'Benja20',
+        nombre: 'Fabián Campaña',
+        cargo: 'Asesor Comercial',
+        email: 'fabian.campaña@empresa.com',
+        telefono: '0987654326',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'daniel-ortega': {
+        password: 'Daniels1003',
+        nombre: 'Daniel Ortega',
+        cargo: 'Asesor Comercial',
+        email: 'daniel.ortega@empresa.com',
+        telefono: '0987654327',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'laura-tipan': {
+        password: 'Laura2606',
+        nombre: 'Laura Tipán',
+        cargo: 'Asesora Comercial',
+        email: 'laura.tipan@empresa.com',
+        telefono: '0987654328',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'mirila-ortiz': {
+        password: 'Tomasa2025',
+        nombre: 'Mirila Ortiz',
+        cargo: 'Asesora Comercial',
+        email: 'mirila.ortiz@empresa.com',
+        telefono: '0987654329',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'christian-santos': {
+        password: 'Cris180995',
+        nombre: 'Christian Santos',
+        cargo: 'Asesor Comercial',
+        email: 'christian.santos@empresa.com',
+        telefono: '0987654330',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+    'jeancarlos-pastran': {
+        password: 'Jean.1997',
+        nombre: 'Jean Carlos Pastrán',
+        cargo: 'Asesor Comercial',
+        email: 'jeancarlos.pastran@empresa.com',
+        telefono: '0987654331',
+        tipo: 'ASESOR',
+        estado: 'ACTIVO'
+    },
+            'viviana-gonzalez': {
+                password: 'Em0209**',
+                nombre: 'Viviana Gonzalez',
+                cargo: 'Supervisora Zonal Quito',
                 email: 'mgonzalez@empresa.com',
                 telefono: '0999888777',
                 tipo: 'GERENTE',
